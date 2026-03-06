@@ -301,6 +301,33 @@ tr:hover td{background:var(--surface2);}
 .diag-table td{padding:10px 14px;border-top:1px solid var(--border);font-size:12px;font-family:'IBM Plex Mono',monospace;}
 .diag-table tr:hover td{background:var(--surface2);}
 
+/* ── EXPORT FORMAT CARDS ── */
+.exp-fmt-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:28px;max-width:620px;}
+.exp-fmt-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:22px 18px;cursor:pointer;transition:all 0.2s;color:var(--text);display:flex;flex-direction:column;gap:8px;}
+.exp-fmt-card:hover{border-color:var(--accent);background:rgba(124,111,255,0.07);transform:translateY(-3px);box-shadow:0 8px 24px rgba(124,111,255,0.15);}
+.exp-fmt-card-icon{font-size:32px;line-height:1;}
+.exp-fmt-card-label{font-size:14px;font-weight:800;font-family:'Inter',sans-serif;}
+.exp-fmt-card-sub{font-size:11px;color:var(--muted);line-height:1.5;font-family:'Inter',sans-serif;}
+
+/* ── EXPORT POPUP OVERLAY ── */
+.exp-popup-overlay{display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,0.82);backdrop-filter:blur(14px);align-items:center;justify-content:center;}
+.exp-popup-overlay.open{display:flex;}
+.exp-popup{background:var(--surface);border:1px solid var(--border);border-radius:16px;width:100%;max-width:560px;max-height:88vh;overflow-y:auto;animation:mIn 0.18s ease;}
+.exp-popup-head{padding:20px 24px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--surface);z-index:2;}
+.exp-popup-title{font-size:16px;font-weight:800;}
+.exp-popup-close{background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;line-height:1;padding:0;}
+.exp-popup-close:hover{color:var(--text);}
+.exp-popup-body{padding:20px 24px;}
+.exp-option-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;}
+.exp-option{background:var(--surface2);border:2px solid var(--border);border-radius:10px;padding:14px;cursor:pointer;transition:all 0.15s;text-align:left;}
+.exp-option:hover{border-color:var(--accent);}
+.exp-option.sel{border-color:var(--accent);background:rgba(124,111,255,0.1);}
+.exp-option-preview{width:100%;height:76px;border-radius:6px;margin-bottom:10px;overflow:hidden;display:flex;}
+.exp-option-name{font-size:12px;font-weight:700;margin-bottom:2px;color:var(--text);}
+.exp-option-desc{font-size:10px;color:var(--muted);line-height:1.4;}
+.exp-popup-btn{width:100%;padding:13px;border-radius:8px;background:var(--accent);color:#fff;border:none;font-size:14px;font-weight:700;cursor:pointer;transition:opacity 0.2s;font-family:'Inter',sans-serif;letter-spacing:0.5px;}
+.exp-popup-btn:hover{opacity:0.85;}
+
 /* TOAST */
 #toast{position:fixed;bottom:20px;right:20px;z-index:9999;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:11px 16px;font-size:12px;font-weight:600;display:none;align-items:center;gap:8px;}
 #toast.show{display:flex;}
@@ -490,17 +517,17 @@ tr:hover td{background:var(--surface2);}
     <div class="exp-fmt-card" onclick="openExpPopup('pdf')">
       <div class="exp-fmt-card-icon">🖨️</div>
       <div class="exp-fmt-card-label">PDF Visual</div>
-      <div class="exp-fmt-card-sub">Escolha um tema visual e abra o PDF para salvar ou enviar</div>
+      <div class="exp-fmt-card-sub">4 temas visuais — abre pronto para salvar ou enviar</div>
     </div>
     <div class="exp-fmt-card" onclick="openExpPopup('csv')">
       <div class="exp-fmt-card-icon">📗</div>
       <div class="exp-fmt-card-label">Planilha CSV</div>
-      <div class="exp-fmt-card-sub">Escolha um template e baixe para Excel ou Google Sheets</div>
+      <div class="exp-fmt-card-sub">4 templates — abre no Excel ou Google Sheets</div>
     </div>
     <div class="exp-fmt-card" onclick="openExpPopup('txt')">
       <div class="exp-fmt-card-icon">📄</div>
-      <div class="exp-fmt-card-sub">Escolha o estilo e baixe como texto para WhatsApp ou e-mail</div>
       <div class="exp-fmt-card-label">Texto</div>
+      <div class="exp-fmt-card-sub">3 estilos — WhatsApp, e-mail ou resumo executivo</div>
     </div>
   </div>
 </div>
@@ -1509,8 +1536,8 @@ function buildExpData() {
 // ── FORMAT POPUP ──
 const EXP_STYLES = {
   pdf: [
-    {name:'Dark Pro',desc:'Fundo escuro, roxo e verde — igual ao dashboard',preview:'bg:#0a0a0f;color:#2dffb0',theme:'dark'},
-    {name:'Clean Light',desc:'Branco limpo, tipografia profissional',preview:'bg:#fff;color:#111',theme:'light'},
+    {name:'Simplificado',desc:'Branco limpo — fácil de ler e imprimir',preview:'bg:#ffffff;color:#16a34a',theme:'light'},
+    {name:'Dark Pro',desc:'Fundo escuro igual ao dashboard',preview:'bg:#0a0a0f;color:#2dffb0',theme:'dark'},
     {name:'Slate',desc:'Cinza escuro elegante, bordas sutis',preview:'bg:#1e1e2e;color:#cdd6f4',theme:'slate'},
     {name:'Neon',desc:'Preto com acentos em roxo vibrante',preview:'bg:#0d0d14;color:#a78bfa',theme:'neon'},
   ],
