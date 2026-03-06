@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AdTrack — Dashboard de Criativos</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #18181f;
+    --border: #222230;
+    --text: #e8e8f0;
+    --muted: #555570;
+    --accent: #7c6fff;
+
+    --mc01: #ff6b2b;
+    --mc02: #ff2d55;
+    --mc03: #2d9cff;
+    --mc04: #2dffb0;
+    --mc05: #ffd12d;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* GRID BG */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(124,111,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(124,111,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* NAV */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(10,10,15,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 32px;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 60px;
+  }
+  .logo {
+    font-family: 'Space Mono', monospace;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--accent);
+  }
+  .logo span { color: var(--text); }
+  nav .tabs { display: flex; gap: 4px; }
+  nav .tab {
+    padding: 6px 18px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+  nav .tab:hover { color: var(--text); background: var(--surface2); }
+  nav .tab.active { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+
+  /* PAGES */
+  .page { display: none; padding: 32px; max-width: 1300px; margin: 0 auto; position: relative; z-index: 1; }
+  .page.active { display: block; }
+
+  /* PAGE HEADERS */
+  .page-header { margin-bottom: 32px; }
+  .page-header h1 { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
+  .page-header p { color: var(--muted); font-size: 14px; margin-top: 4px; }
+
+  /* CARDS GRID */
+  .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 32px; }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .stat-card:hover { border-color: var(--accent); }
+  .stat-card .label { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+  .stat-card .value { font-family: 'Space Mono', monospace; font-size: 26px; font-weight: 700; line-height: 1; }
+  .stat-card .sub { font-size: 12px; color: var(--muted); margin-top: 6px; }
+  .stat-card .accent-line {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--accent);
+  }
+
+  /* PERIOD FILTER */
+  .period-bar {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+  }
+  .period-bar label { font-size: 12px; color: var(--muted); font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-right: 4px; }
+  .period-btn {
+    padding: 6px 16px; border-radius: 6px; border: 1px solid var(--border);
+    background: transparent; color: var(--muted); font-size: 12px; font-weight: 700;
+    cursor: pointer; transition: all 0.2s; font-family: 'Syne', sans-serif;
+    letter-spacing: 0.5px;
+  }
+  .period-btn:hover { color: var(--text); border-color: var(--accent); }
+  .period-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .date-inputs { display: flex; gap: 8px; align-items: center; margin-left: 8px; }
+  .date-inputs input {
+    background: var(--surface2); border: 1px solid var(--border); color: var(--text);
+    padding: 6px 12px; border-radius: 6px; font-size: 12px; font-family: 'Space Mono', monospace;
+  }
+  .date-inputs input:focus { outline: none; border-color: var(--accent); }
+
+  /* CRIATIVOS TABLE */
+  .section-title {
+    font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 16px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  .criativo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; margin-bottom: 32px; }
+
+  .criativo-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+  .criativo-card:hover { transform: translateY(-2px); }
+  .criativo-card .cc-color-bar {
+    position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  }
+  .criativo-card .cc-name { font-family: 'Space Mono', monospace; font-size: 18px; font-weight: 700; margin-bottom: 2px; }
+  .criativo-card .cc-color { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; }
+  .criativo-card .cc-stat { display: flex; justify-content: space-between; margin-bottom: 6px; }
+  .criativo-card .cc-stat-label { font-size: 11px; color: var(--muted); }
+  .criativo-card .cc-stat-value { font-family: 'Space Mono', monospace; font-size: 13px; font-weight: 700; }
+  .criativo-card .cc-badge {
+    position: absolute; top: 14px; right: 14px;
+    font-size: 9px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+    padding: 3px 8px; border-radius: 20px;
+  }
+
+  /* RANKING */
+  .ranking-row {
+    display: flex; align-items: center; gap: 16px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px 18px; margin-bottom: 10px;
+    transition: border-color 0.2s;
+  }
+  .ranking-row:hover { border-color: var(--accent); }
+  .rank-num { font-family: 'Space Mono', monospace; font-size: 22px; font-weight: 700; color: var(--border); width: 36px; }
+  .rank-num.gold { color: #ffd12d; }
+  .rank-num.silver { color: #aaa; }
+  .rank-num.bronze { color: #cd7f32; }
+  .rank-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .rank-name { font-family: 'Space Mono', monospace; font-size: 15px; font-weight: 700; flex: 1; }
+  .rank-color { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+  .rank-val { font-family: 'Space Mono', monospace; font-size: 16px; font-weight: 700; text-align: right; }
+
+  /* CHART */
+  .chart-wrap {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 24px; margin-bottom: 32px;
+  }
+  .chart-wrap canvas { max-height: 260px; }
+
+  /* FASE 2 */
+  .fase2-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; margin-bottom: 32px; }
+  .fase2-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 18px; position: relative; overflow: hidden;
+  }
+  .fase2-card .fc-bar { position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+  .fase2-card .fc-name { font-family: 'Space Mono', monospace; font-size: 15px; font-weight: 700; margin-bottom: 14px; }
+  .fase2-card .fc-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); }
+  .fase2-card .fc-row:last-child { border-bottom: none; }
+  .fase2-card .fc-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+  .fase2-card .fc-value { font-family: 'Space Mono', monospace; font-size: 14px; font-weight: 700; }
+  .fc-value.positive { color: #2dffb0; }
+  .fc-value.negative { color: #ff2d55; }
+  .fc-value.neutral { color: var(--mc05); }
+
+  /* VENDAS TABLE */
+  .btn-primary {
+    background: var(--accent); color: #fff; border: none;
+    padding: 10px 22px; border-radius: 8px; font-size: 13px; font-weight: 700;
+    cursor: pointer; transition: opacity 0.2s; font-family: 'Syne', sans-serif;
+    letter-spacing: 0.5px; display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn-primary:hover { opacity: 0.85; }
+  .btn-ghost {
+    background: transparent; color: var(--muted); border: 1px solid var(--border);
+    padding: 10px 22px; border-radius: 8px; font-size: 13px; font-weight: 700;
+    cursor: pointer; transition: all 0.2s; font-family: 'Syne', sans-serif;
+  }
+  .btn-ghost:hover { color: var(--text); border-color: var(--text); }
+  .btn-danger {
+    background: transparent; color: #ff2d55; border: 1px solid #ff2d5533;
+    padding: 6px 14px; border-radius: 6px; font-size: 11px; font-weight: 700;
+    cursor: pointer; transition: all 0.2s; font-family: 'Space Mono', monospace;
+  }
+  .btn-danger:hover { background: #ff2d5520; }
+
+  .table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 20px; }
+  table { width: 100%; border-collapse: collapse; }
+  th { background: var(--surface2); padding: 12px 16px; text-align: left; font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+  td { padding: 12px 16px; border-top: 1px solid var(--border); font-size: 13px; vertical-align: middle; }
+  tr:hover td { background: var(--surface2); }
+  .tag-criativo {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700;
+    font-family: 'Space Mono', monospace;
+  }
+  .tag-dot { width: 7px; height: 7px; border-radius: 50%; }
+  .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
+  .empty-state .empty-icon { font-size: 36px; margin-bottom: 12px; }
+  .empty-state p { font-size: 14px; }
+
+  /* CRIATIVOS PAGE */
+  .criativo-list-item {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 16px 20px;
+    display: flex; align-items: center; gap: 16px; margin-bottom: 10px;
+    transition: border-color 0.2s;
+  }
+  .criativo-list-item:hover { border-color: var(--accent); }
+  .cli-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+  .cli-name { font-family: 'Space Mono', monospace; font-size: 15px; font-weight: 700; flex: 1; }
+  .cli-color { font-size: 12px; color: var(--muted); flex: 1; }
+  .cli-date { font-size: 11px; color: var(--muted); font-family: 'Space Mono', monospace; }
+
+  /* CUSTOS PAGE */
+  .custo-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 16px 20px;
+    display: flex; align-items: center; gap: 16px; margin-bottom: 10px;
+  }
+  .custo-card .c-name { font-family: 'Space Mono', monospace; font-size: 14px; font-weight: 700; flex: 1; }
+  .custo-card .c-periodo { font-size: 12px; color: var(--muted); flex: 1; }
+  .custo-card .c-valor { font-family: 'Space Mono', monospace; font-size: 16px; font-weight: 700; color: #ff6b6b; }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0; z-index: 1000;
+    background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
+    align-items: center; justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+    width: 100%; max-width: 460px;
+    position: relative;
+    animation: modalIn 0.2s ease;
+  }
+  @keyframes modalIn { from { opacity: 0; transform: scale(0.96) translateY(10px); } to { opacity: 1; transform: none; } }
+  .modal h2 { font-size: 20px; font-weight: 800; margin-bottom: 24px; }
+  .modal-close { position: absolute; top: 20px; right: 20px; background: none; border: none; color: var(--muted); font-size: 20px; cursor: pointer; }
+  .modal-close:hover { color: var(--text); }
+  .form-group { margin-bottom: 18px; }
+  .form-group label { display: block; font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  .form-group input, .form-group select, .form-group textarea {
+    width: 100%; background: var(--bg);
+    border: 1px solid var(--border); color: var(--text);
+    padding: 10px 14px; border-radius: 8px; font-size: 14px;
+    font-family: 'Syne', sans-serif; transition: border-color 0.2s;
+  }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+    outline: none; border-color: var(--accent);
+  }
+  .form-group select option { background: var(--surface2); }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; }
+  .color-preview {
+    display: inline-block; width: 12px; height: 12px; border-radius: 50%;
+    margin-right: 8px; vertical-align: middle;
+  }
+
+  /* TOAST */
+  #toast {
+    position: fixed; bottom: 24px; right: 24px; z-index: 9999;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px 20px;
+    font-size: 13px; font-weight: 600;
+    display: none; align-items: center; gap: 10px;
+    animation: toastIn 0.3s ease;
+  }
+  @keyframes toastIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  #toast.show { display: flex; }
+  #toast .toast-dot { width: 8px; height: 8px; border-radius: 50%; background: #2dffb0; }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    .page { padding: 20px 16px; }
+    nav { padding: 0 16px; }
+    .cards-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">AD<span>TRACK</span></div>
+  <div class="tabs">
+    <button class="tab active" onclick="showPage('dashboard')">Dashboard</button>
+    <button class="tab" onclick="showPage('vendas')">Vendas</button>
+    <button class="tab" onclick="showPage('criativos')">Criativos</button>
+    <button class="tab" onclick="showPage('custos')">Custos</button>
+    <button class="tab" onclick="showPage('fase2')">ROI & CPA</button>
+  </div>
+</nav>
+
+<!-- DASHBOARD -->
+<div class="page active" id="page-dashboard">
+  <div class="page-header">
+    <h1>Dashboard</h1>
+    <p>Visão geral de performance por criativo</p>
+  </div>
+
+  <div class="period-bar">
+    <label>Período</label>
+    <button class="period-btn active" onclick="setPeriod('all', this)">Tudo</button>
+    <button class="period-btn" onclick="setPeriod('today', this)">Hoje</button>
+    <button class="period-btn" onclick="setPeriod('week', this)">Semana</button>
+    <button class="period-btn" onclick="setPeriod('month', this)">Mês</button>
+    <div class="date-inputs">
+      <input type="date" id="dateFrom" onchange="setPeriod('custom')">
+      <span style="color:var(--muted);font-size:12px">→</span>
+      <input type="date" id="dateTo" onchange="setPeriod('custom')">
+    </div>
+  </div>
+
+  <!-- RESUMO GERAL -->
+  <div class="section-title">Resumo Geral</div>
+  <div class="cards-grid" id="cards-geral"></div>
+
+  <!-- CHART -->
+  <div class="section-title">Faturamento por Criativo</div>
+  <div class="chart-wrap">
+    <canvas id="barChart"></canvas>
+  </div>
+
+  <!-- CRIATIVOS -->
+  <div class="section-title">Performance por Criativo</div>
+  <div class="criativo-grid" id="criativo-cards"></div>
+
+  <!-- RANKING -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;" id="rankings-grid">
+    <div>
+      <div class="section-title">Ranking — Mais Vendas</div>
+      <div id="rank-vendas"></div>
+    </div>
+    <div>
+      <div class="section-title">Ranking — Maior Faturamento</div>
+      <div id="rank-fat"></div>
+    </div>
+  </div>
+</div>
+
+<!-- VENDAS -->
+<div class="page" id="page-vendas">
+  <div class="page-header" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px">
+    <div>
+      <h1>Registro de Vendas</h1>
+      <p>Adicione vendas manualmente conforme chegam</p>
+    </div>
+    <button class="btn-primary" onclick="openModal('venda')">＋ Nova Venda</button>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Data</th>
+          <th>Criativo</th>
+          <th>Valor</th>
+          <th>Cliente</th>
+          <th>Observação</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="vendas-tbody"></tbody>
+    </table>
+  </div>
+  <div id="vendas-empty" class="empty-state" style="display:none">
+    <div class="empty-icon">📭</div>
+    <p>Nenhuma venda registrada ainda.</p>
+  </div>
+</div>
+
+<!-- CRIATIVOS -->
+<div class="page" id="page-criativos">
+  <div class="page-header" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px">
+    <div>
+      <h1>Criativos</h1>
+      <p>Gerencie os criativos ativos</p>
+    </div>
+    <button class="btn-primary" onclick="openModal('criativo')">＋ Novo Criativo</button>
+  </div>
+  <div id="criativos-list"></div>
+</div>
+
+<!-- CUSTOS -->
+<div class="page" id="page-custos">
+  <div class="page-header" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px">
+    <div>
+      <h1>Custos por Criativo</h1>
+      <p>Registre o investimento em cada criativo</p>
+    </div>
+    <button class="btn-primary" onclick="openModal('custo')">＋ Lançar Custo</button>
+  </div>
+  <div id="custos-list"></div>
+  <div id="custos-empty" class="empty-state" style="display:none">
+    <div class="empty-icon">💸</div>
+    <p>Nenhum custo lançado ainda.</p>
+  </div>
+</div>
+
+<!-- FASE 2 — ROI & CPA -->
+<div class="page" id="page-fase2">
+  <div class="page-header">
+    <h1>ROI & CPA — Fase 2</h1>
+    <p>Análise avançada de performance financeira</p>
+  </div>
+  <div id="fase2-cards" class="fase2-grid"></div>
+  <div id="fase2-empty" class="empty-state" style="display:none">
+    <div class="empty-icon">📊</div>
+    <p>Lance custos na aba Custos para calcular ROI e CPA.</p>
+  </div>
+</div>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="modal-venda">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('venda')">✕</button>
+    <h2>Nova Venda</h2>
+    <div class="form-group">
+      <label>Data</label>
+      <input type="date" id="v-data">
+    </div>
+    <div class="form-group">
+      <label>Criativo</label>
+      <select id="v-criativo"></select>
+    </div>
+    <div class="form-group">
+      <label>Valor da Venda (R$)</label>
+      <input type="number" id="v-valor" placeholder="0,00" step="0.01" min="0">
+    </div>
+    <div class="form-group">
+      <label>Cliente (opcional)</label>
+      <input type="text" id="v-cliente" placeholder="Nome do cliente">
+    </div>
+    <div class="form-group">
+      <label>Observação (opcional)</label>
+      <input type="text" id="v-obs" placeholder="Ex: indicação, produto X...">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="closeModal('venda')">Cancelar</button>
+      <button class="btn-primary" onclick="salvarVenda()">Salvar Venda</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-criativo">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('criativo')">✕</button>
+    <h2>Novo Criativo</h2>
+    <div class="form-group">
+      <label>Nome (ex: MC06)</label>
+      <input type="text" id="c-nome" placeholder="MC06">
+    </div>
+    <div class="form-group">
+      <label>Cor</label>
+      <input type="text" id="c-cor" placeholder="Ex: ROXO">
+    </div>
+    <div class="form-group">
+      <label>Cor Hex</label>
+      <input type="color" id="c-hex" value="#ffffff" style="height:42px;padding:4px 8px;">
+    </div>
+    <div class="form-group">
+      <label>Data de Início</label>
+      <input type="date" id="c-data">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="closeModal('criativo')">Cancelar</button>
+      <button class="btn-primary" onclick="salvarCriativo()">Adicionar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-custo">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('custo')">✕</button>
+    <h2>Lançar Custo</h2>
+    <div class="form-group">
+      <label>Criativo</label>
+      <select id="cu-criativo"></select>
+    </div>
+    <div class="form-group">
+      <label>Período</label>
+      <input type="text" id="cu-periodo" placeholder="Ex: Semana 01/03">
+    </div>
+    <div class="form-group">
+      <label>Valor Investido (R$)</label>
+      <input type="number" id="cu-valor" placeholder="0,00" step="0.01" min="0">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="closeModal('custo')">Cancelar</button>
+      <button class="btn-primary" onclick="salvarCusto()">Lançar</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"><div class="toast-dot"></div><span id="toast-msg"></span></div>
+
+<script>
+// ===================== STATE =====================
+const DEFAULTS = {
+  criativos: [
+    { id: 'MC01', cor: 'LARANJA', hex: '#ff6b2b', data: '2025-01-01' },
+    { id: 'MC02', cor: 'VERMELHO', hex: '#ff2d55', data: '2025-01-01' },
+    { id: 'MC03', cor: 'AZUL', hex: '#2d9cff', data: '2025-01-01' },
+    { id: 'MC04', cor: 'VERDE', hex: '#2dffb0', data: '2025-01-01' },
+    { id: 'MC05', cor: 'AMARELO', hex: '#ffd12d', data: '2025-01-01' },
+  ],
+  vendas: [],
+  custos: [],
+};
+
+let state = loadState();
+let currentPeriod = 'all';
+let barChart = null;
+
+function loadState() {
+  try {
+    const s = localStorage.getItem('adtrack_state');
+    return s ? JSON.parse(s) : JSON.parse(JSON.stringify(DEFAULTS));
+  } catch { return JSON.parse(JSON.stringify(DEFAULTS)); }
+}
+
+function saveState() {
+  localStorage.setItem('adtrack_state', JSON.stringify(state));
+}
+
+// ===================== UTILS =====================
+function fmtBRL(v) {
+  return 'R$ ' + Number(v).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function fmtPct(v) {
+  return (v * 100).toFixed(1) + '%';
+}
+
+function getCriativo(id) {
+  return state.criativos.find(c => c.id === id);
+}
+
+function filterVendas(vendas) {
+  const now = new Date();
+  if (currentPeriod === 'all') return vendas;
+  if (currentPeriod === 'today') {
+    const t = now.toISOString().slice(0,10);
+    return vendas.filter(v => v.data === t);
+  }
+  if (currentPeriod === 'week') {
+    const start = new Date(now); start.setDate(now.getDate() - now.getDay());
+    return vendas.filter(v => new Date(v.data) >= start);
+  }
+  if (currentPeriod === 'month') {
+    const y = now.getFullYear(), m = now.getMonth();
+    return vendas.filter(v => { const d = new Date(v.data); return d.getFullYear()===y && d.getMonth()===m; });
+  }
+  if (currentPeriod === 'custom') {
+    const from = document.getElementById('dateFrom').value;
+    const to = document.getElementById('dateTo').value;
+    return vendas.filter(v => (!from || v.data >= from) && (!to || v.data <= to));
+  }
+  return vendas;
+}
+
+function statsFor(criatId, vendas) {
+  const vs = vendas.filter(v => v.criativo === criatId);
+  const fat = vs.reduce((s, v) => s + Number(v.valor), 0);
+  return { qtd: vs.length, fat, ticket: vs.length ? fat / vs.length : 0 };
+}
+
+function custoTotal(criatId) {
+  return state.custos.filter(c => c.criativo === criatId).reduce((s, c) => s + Number(c.valor), 0);
+}
+
+// ===================== RENDER DASHBOARD =====================
+function renderDashboard() {
+  const vendas = filterVendas(state.vendas);
+
+  // GERAL
+  const totalVendas = vendas.length;
+  const totalFat = vendas.reduce((s, v) => s + Number(v.valor), 0);
+  const ticketGeral = totalVendas ? totalFat / totalVendas : 0;
+  const totalCusto = state.custos.reduce((s, c) => s + Number(c.valor), 0);
+  const roiGeral = totalCusto ? ((totalFat - totalCusto) / totalCusto) * 100 : null;
+
+  document.getElementById('cards-geral').innerHTML = `
+    <div class="stat-card">
+      <div class="label">Total de Vendas</div>
+      <div class="value">${totalVendas}</div>
+      <div class="sub">registros</div>
+      <div class="accent-line" style="background:#7c6fff"></div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Faturamento</div>
+      <div class="value" style="font-size:18px">${fmtBRL(totalFat)}</div>
+      <div class="sub">total bruto</div>
+      <div class="accent-line" style="background:#2dffb0"></div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Ticket Médio</div>
+      <div class="value" style="font-size:18px">${fmtBRL(ticketGeral)}</div>
+      <div class="sub">por venda</div>
+      <div class="accent-line" style="background:#ffd12d"></div>
+    </div>
+    ${roiGeral !== null ? `
+    <div class="stat-card">
+      <div class="label">ROI Geral</div>
+      <div class="value" style="font-size:22px;color:${roiGeral>=0?'#2dffb0':'#ff2d55'}">${roiGeral.toFixed(1)}%</div>
+      <div class="sub">retorno sobre custo</div>
+      <div class="accent-line" style="background:${roiGeral>=0?'#2dffb0':'#ff2d55'}"></div>
+    </div>` : ''}
+  `;
+
+  // CRIATIVO CARDS
+  const topFat = Math.max(...state.criativos.map(c => statsFor(c.id, vendas).fat), 1);
+  const topQtd = Math.max(...state.criativos.map(c => statsFor(c.id, vendas).qtd), 1);
+
+  document.getElementById('criativo-cards').innerHTML = state.criativos.map(c => {
+    const s = statsFor(c.id, vendas);
+    const isTopFat = s.fat === topFat && s.fat > 0;
+    const isTopQtd = s.qtd === topQtd && s.qtd > 0;
+    return `
+      <div class="criativo-card" style="border-color:${s.qtd>0?c.hex+'44':''}" >
+        <div class="cc-color-bar" style="background:${c.hex}"></div>
+        ${isTopFat ? `<span class="cc-badge" style="background:${c.hex}22;color:${c.hex}">🏆 TOP FAT</span>` : ''}
+        ${isTopQtd && !isTopFat ? `<span class="cc-badge" style="background:${c.hex}22;color:${c.hex}">🔥 TOP VND</span>` : ''}
+        <div class="cc-name" style="color:${c.hex}">${c.id}</div>
+        <div class="cc-color">${c.cor}</div>
+        <div class="cc-stat"><span class="cc-stat-label">Vendas</span><span class="cc-stat-value">${s.qtd}</span></div>
+        <div class="cc-stat"><span class="cc-stat-label">Faturamento</span><span class="cc-stat-value" style="font-size:11px">${fmtBRL(s.fat)}</span></div>
+        <div class="cc-stat"><span class="cc-stat-label">Ticket Médio</span><span class="cc-stat-value" style="font-size:11px">${fmtBRL(s.ticket)}</span></div>
+      </div>`;
+  }).join('');
+
+  // RANKINGS
+  const sorted_fat = [...state.criativos].map(c => ({ ...c, ...statsFor(c.id, vendas) })).sort((a,b) => b.fat - a.fat);
+  const sorted_qtd = [...state.criativos].map(c => ({ ...c, ...statsFor(c.id, vendas) })).sort((a,b) => b.qtd - a.qtd);
+
+  function rankHtml(list, key, fmt) {
+    return list.map((c, i) => {
+      const cls = i===0?'gold':i===1?'silver':i===2?'bronze':'';
+      return `<div class="ranking-row">
+        <span class="rank-num ${cls}">${i+1}</span>
+        <span class="rank-dot" style="background:${c.hex}"></span>
+        <div><div class="rank-name">${c.id}</div><div class="rank-color">${c.cor}</div></div>
+        <span class="rank-val">${fmt(c[key])}</span>
+      </div>`;
+    }).join('');
+  }
+
+  document.getElementById('rank-fat').innerHTML = rankHtml(sorted_fat, 'fat', fmtBRL);
+  document.getElementById('rank-vendas').innerHTML = rankHtml(sorted_qtd, 'qtd', v => v + ' vnd');
+
+  // CHART
+  const labels = state.criativos.map(c => c.id);
+  const data = state.criativos.map(c => statsFor(c.id, vendas).fat);
+  const colors = state.criativos.map(c => c.hex);
+
+  if (barChart) barChart.destroy();
+  const ctx = document.getElementById('barChart').getContext('2d');
+  barChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Faturamento',
+        data,
+        backgroundColor: colors.map(c => c + '88'),
+        borderColor: colors,
+        borderWidth: 2,
+        borderRadius: 6,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => fmtBRL(ctx.raw)
+          }
+        }
+      },
+      scales: {
+        x: { grid: { color: '#222230' }, ticks: { color: '#555570', font: { family: 'Space Mono' } } },
+        y: { grid: { color: '#222230' }, ticks: { color: '#555570', font: { family: 'Space Mono' }, callback: v => 'R$' + v } }
+      }
+    }
+  });
+}
+
+// ===================== RENDER VENDAS =====================
+function renderVendas() {
+  const tbody = document.getElementById('vendas-tbody');
+  const empty = document.getElementById('vendas-empty');
+  if (!state.vendas.length) {
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  const sorted = [...state.vendas].sort((a,b) => b.data.localeCompare(a.data));
+  tbody.innerHTML = sorted.map((v, i) => {
+    const c = getCriativo(v.criativo) || { hex: '#888', cor: '' };
+    const origIdx = state.vendas.indexOf(v);
+    return `<tr>
+      <td style="font-family:'Space Mono',monospace;font-size:12px">${v.data}</td>
+      <td><span class="tag-criativo" style="background:${c.hex}22;color:${c.hex}">
+        <span class="tag-dot" style="background:${c.hex}"></span>${v.criativo}
+      </span></td>
+      <td style="font-family:'Space Mono',monospace;font-weight:700">${fmtBRL(v.valor)}</td>
+      <td style="color:var(--muted)">${v.cliente || '—'}</td>
+      <td style="color:var(--muted);font-size:12px">${v.obs || '—'}</td>
+      <td><button class="btn-danger" onclick="deletarVenda(${origIdx})">✕</button></td>
+    </tr>`;
+  }).join('');
+}
+
+// ===================== RENDER CRIATIVOS =====================
+function renderCriativos() {
+  document.getElementById('criativos-list').innerHTML = state.criativos.map((c, i) => `
+    <div class="criativo-list-item">
+      <span class="cli-dot" style="background:${c.hex}"></span>
+      <span class="cli-name" style="color:${c.hex}">${c.id}</span>
+      <span class="cli-color">${c.cor}</span>
+      <span class="cli-date">${c.data}</span>
+      ${i >= 5 ? `<button class="btn-danger" onclick="deletarCriativo(${i})">✕</button>` : '<span style="width:60px"></span>'}
+    </div>
+  `).join('');
+}
+
+// ===================== RENDER CUSTOS =====================
+function renderCustos() {
+  const list = document.getElementById('custos-list');
+  const empty = document.getElementById('custos-empty');
+  if (!state.custos.length) {
+    list.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  list.innerHTML = state.custos.map((cu, i) => {
+    const c = getCriativo(cu.criativo) || { hex: '#888' };
+    return `<div class="custo-card">
+      <span class="cli-dot" style="background:${c.hex}"></span>
+      <span class="c-name">${cu.criativo}</span>
+      <span class="c-periodo">${cu.periodo}</span>
+      <span class="c-valor">${fmtBRL(cu.valor)}</span>
+      <button class="btn-danger" onclick="deletarCusto(${i})">✕</button>
+    </div>`;
+  }).join('');
+}
+
+// ===================== RENDER FASE 2 =====================
+function renderFase2() {
+  const cards = document.getElementById('fase2-cards');
+  const empty = document.getElementById('fase2-empty');
+
+  const hasCustos = state.custos.length > 0;
+  if (!hasCustos) {
+    cards.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+
+  const vendas = filterVendas(state.vendas);
+
+  cards.innerHTML = state.criativos.map(c => {
+    const s = statsFor(c.id, vendas);
+    const custo = custoTotal(c.id);
+    const lucro = s.fat - custo;
+    const roi = custo ? ((lucro / custo) * 100) : null;
+    const cpa = s.qtd ? (custo / s.qtd) : null;
+    const conv = custo && s.qtd ? s.qtd : null;
+
+    return `<div class="fase2-card">
+      <div class="fc-bar" style="background:${c.hex}"></div>
+      <div class="fc-name" style="color:${c.hex}">${c.id} — ${c.cor}</div>
+      <div class="fc-row">
+        <span class="fc-label">Faturamento</span>
+        <span class="fc-value">${fmtBRL(s.fat)}</span>
+      </div>
+      <div class="fc-row">
+        <span class="fc-label">Custo Total</span>
+        <span class="fc-value negative">${fmtBRL(custo)}</span>
+      </div>
+      <div class="fc-row">
+        <span class="fc-label">Lucro</span>
+        <span class="fc-value ${lucro>=0?'positive':'negative'}">${fmtBRL(lucro)}</span>
+      </div>
+      <div class="fc-row">
+        <span class="fc-label">ROI</span>
+        <span class="fc-value ${roi===null?'neutral':roi>=0?'positive':'negative'}">${roi !== null ? roi.toFixed(1)+'%' : '—'}</span>
+      </div>
+      <div class="fc-row">
+        <span class="fc-label">CPA</span>
+        <span class="fc-value neutral">${cpa !== null ? fmtBRL(cpa) : '—'}</span>
+      </div>
+      <div class="fc-row">
+        <span class="fc-label">Vendas</span>
+        <span class="fc-value">${s.qtd}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ===================== POPULATE SELECTS =====================
+function populateSelects() {
+  ['v-criativo', 'cu-criativo'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.innerHTML = state.criativos.map(c =>
+      `<option value="${c.id}">${c.id} — ${c.cor}</option>`
+    ).join('');
+  });
+}
+
+// ===================== MODAL =====================
+function openModal(type) {
+  populateSelects();
+  if (type === 'venda') {
+    document.getElementById('v-data').value = new Date().toISOString().slice(0,10);
+    document.getElementById('v-valor').value = '';
+    document.getElementById('v-cliente').value = '';
+    document.getElementById('v-obs').value = '';
+  }
+  if (type === 'criativo') {
+    document.getElementById('c-nome').value = '';
+    document.getElementById('c-cor').value = '';
+    document.getElementById('c-data').value = new Date().toISOString().slice(0,10);
+  }
+  if (type === 'custo') {
+    document.getElementById('cu-valor').value = '';
+    document.getElementById('cu-periodo').value = '';
+  }
+  document.getElementById('modal-' + type).classList.add('open');
+}
+
+function closeModal(type) {
+  document.getElementById('modal-' + type).classList.remove('open');
+}
+
+// Close on overlay click
+document.querySelectorAll('.modal-overlay').forEach(el => {
+  el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); });
+});
+
+// ===================== ACTIONS =====================
+function salvarVenda() {
+  const data = document.getElementById('v-data').value;
+  const criativo = document.getElementById('v-criativo').value;
+  const valor = parseFloat(document.getElementById('v-valor').value);
+  const cliente = document.getElementById('v-cliente').value.trim();
+  const obs = document.getElementById('v-obs').value.trim();
+
+  if (!data || !criativo || isNaN(valor) || valor <= 0) {
+    showToast('Preencha data, criativo e valor.', '#ff2d55');
+    return;
+  }
+
+  state.vendas.push({ data, criativo, valor, cliente, obs });
+  saveState();
+  closeModal('venda');
+  renderAll();
+  showToast('Venda registrada!');
+}
+
+function deletarVenda(i) {
+  state.vendas.splice(i, 1);
+  saveState();
+  renderAll();
+  showToast('Venda removida.');
+}
+
+function salvarCriativo() {
+  const nome = document.getElementById('c-nome').value.trim().toUpperCase();
+  const cor = document.getElementById('c-cor').value.trim().toUpperCase();
+  const hex = document.getElementById('c-hex').value;
+  const data = document.getElementById('c-data').value;
+
+  if (!nome || !cor) { showToast('Nome e cor são obrigatórios.', '#ff2d55'); return; }
+  if (state.criativos.find(c => c.id === nome)) { showToast('Criativo já existe.', '#ff2d55'); return; }
+
+  state.criativos.push({ id: nome, cor, hex, data });
+  saveState();
+  closeModal('criativo');
+  renderAll();
+  showToast('Criativo adicionado!');
+}
+
+function deletarCriativo(i) {
+  state.criativos.splice(i, 1);
+  saveState();
+  renderAll();
+  showToast('Criativo removido.');
+}
+
+function salvarCusto() {
+  const criativo = document.getElementById('cu-criativo').value;
+  const periodo = document.getElementById('cu-periodo').value.trim();
+  const valor = parseFloat(document.getElementById('cu-valor').value);
+
+  if (!criativo || !periodo || isNaN(valor) || valor <= 0) {
+    showToast('Preencha todos os campos.', '#ff2d55');
+    return;
+  }
+
+  state.custos.push({ criativo, periodo, valor });
+  saveState();
+  closeModal('custo');
+  renderAll();
+  showToast('Custo lançado!');
+}
+
+function deletarCusto(i) {
+  state.custos.splice(i, 1);
+  saveState();
+  renderAll();
+  showToast('Custo removido.');
+}
+
+// ===================== PERIOD =====================
+function setPeriod(p, btn) {
+  currentPeriod = p;
+  document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderDashboard();
+  renderFase2();
+}
+
+// ===================== PAGES =====================
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  event.target.classList.add('active');
+  if (id === 'dashboard') renderDashboard();
+  if (id === 'fase2') renderFase2();
+}
+
+// ===================== TOAST =====================
+let toastTimer;
+function showToast(msg, color) {
+  const t = document.getElementById('toast');
+  const dot = t.querySelector('.toast-dot');
+  document.getElementById('toast-msg').textContent = msg;
+  dot.style.background = color || '#2dffb0';
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ===================== INIT =====================
+function renderAll() {
+  renderDashboard();
+  renderVendas();
+  renderCriativos();
+  renderCustos();
+  renderFase2();
+}
+
+renderAll();
+</script>
+</body>
+</html>
