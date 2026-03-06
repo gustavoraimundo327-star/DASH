@@ -328,6 +328,34 @@ tr:hover td{background:var(--surface2);}
 .exp-popup-btn{width:100%;padding:13px;border-radius:8px;background:var(--accent);color:#fff;border:none;font-size:14px;font-weight:700;cursor:pointer;transition:opacity 0.2s;font-family:'Inter',sans-serif;letter-spacing:0.5px;}
 .exp-popup-btn:hover{opacity:0.85;}
 
+/* ── CRIATIVO ANÁLISE POPUP ── */
+#cria-analise-overlay{display:none;position:fixed;inset:0;z-index:600;background:rgba(0,0,0,0.82);backdrop-filter:blur(12px);align-items:center;justify-content:center;}
+#cria-analise-overlay.open{display:flex;}
+.ca-modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;width:100%;max-width:680px;max-height:88vh;overflow-y:auto;animation:mIn 0.18s ease;}
+.ca-head{padding:20px 24px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--surface);z-index:2;}
+.ca-head-left{display:flex;align-items:center;gap:12px;}
+.ca-dot{width:14px;height:14px;border-radius:50%;flex-shrink:0;}
+.ca-title{font-family:'IBM Plex Mono',monospace;font-size:17px;font-weight:700;}
+.ca-sub{font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;}
+.ca-close{background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;line-height:1;}
+.ca-close:hover{color:var(--text);}
+.ca-body{padding:20px 24px;}
+.ca-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:20px;}
+.ca-sum-card{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:11px 13px;}
+.ca-sum-lbl{font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
+.ca-sum-val{font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:700;}
+.ca-day-row{display:flex;align-items:center;gap:0;background:var(--surface2);border:1px solid var(--border);border-radius:8px;margin-bottom:8px;overflow:hidden;cursor:pointer;transition:border-color 0.15s;}
+.ca-day-row:hover{border-color:var(--accent);}
+.ca-day-date{padding:12px 14px;min-width:130px;border-right:1px solid var(--border);}
+.ca-day-date-str{font-size:12px;font-weight:700;text-transform:capitalize;}
+.ca-day-date-sub{font-size:10px;color:var(--muted);}
+.ca-day-metrics{display:flex;flex:1;}
+.ca-day-metric{flex:1;padding:12px 10px;border-right:1px solid var(--border);}
+.ca-day-metric:last-child{border-right:none;}
+.ca-day-metric-lbl{font-size:8px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:3px;}
+.ca-day-metric-val{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;}
+.ca-trend{display:flex;align-items:center;gap:6px;padding:3px 8px;border-radius:4px;font-size:10px;font-weight:700;font-family:'IBM Plex Mono',monospace;}
+
 /* TOAST */
 #toast{position:fixed;bottom:20px;right:20px;z-index:9999;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:11px 16px;font-size:12px;font-weight:600;display:none;align-items:center;gap:8px;}
 #toast.show{display:flex;}
@@ -542,6 +570,27 @@ tr:hover td{background:var(--surface2);}
     <div class="exp-popup-body">
       <div id="exp-option-grid" class="exp-option-grid"></div>
       <button class="exp-popup-btn" onclick="confirmExport()">⬇ Baixar</button>
+    </div>
+  </div>
+</div>
+
+<!-- CRIATIVO ANÁLISE OVERLAY -->
+<div id="cria-analise-overlay" onclick="closeCriaAnalise()">
+  <div class="ca-modal" onclick="event.stopPropagation()">
+    <div class="ca-head">
+      <div class="ca-head-left">
+        <span class="ca-dot" id="ca-dot"></span>
+        <div>
+          <div class="ca-title" id="ca-title"></div>
+          <div class="ca-sub" id="ca-sub"></div>
+        </div>
+      </div>
+      <button class="ca-close" onclick="closeCriaAnalise()">✕</button>
+    </div>
+    <div class="ca-body">
+      <div class="ca-summary" id="ca-summary"></div>
+      <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;gap:8px;">Histórico por Dia <span style="flex:1;height:1px;background:var(--border);display:block;"></span></div>
+      <div id="ca-days"></div>
     </div>
   </div>
 </div>
@@ -869,7 +918,7 @@ function renderDashboard(){
   document.getElementById('criativo-cards').innerHTML=state.criativos.map(c=>{
     const s=statsFor(c.id,vendas);const iF=s.fat===tF&&s.fat>0,iQ=s.qtd===tQ&&s.qtd>0;
     const cCusto=custoTotalId(c.id,custosFilt),cRoiX=cCusto?(s.fat/cCusto):null;
-    return`<div class="cc" style="border-color:${s.qtd>0?c.hex+'44':''}">
+    return`<div class="cc" style="border-color:${s.qtd>0?c.hex+'44':''};cursor:pointer;" onclick="openCriaAnalise('${c.id}')">
       <div class="cbar" style="background:${c.hex}"></div>
       ${iF?`<span class="cbadge" style="background:${c.hex}22;color:${c.hex}">🏆 TOP</span>`:iQ?`<span class="cbadge" style="background:${c.hex}22;color:${c.hex}">🔥 TOP</span>`:''}
       <div class="cid" style="color:${c.hex}">${c.id}</div><div class="ccor">${c.cor}</div>
@@ -877,6 +926,7 @@ function renderDashboard(){
       <div class="crow"><span class="clbl">Faturamento</span><span class="cval">${fmtBRL(s.fat)}</span></div>
       <div class="crow"><span class="clbl">Ticket</span><span class="cval">${fmtBRL(s.ticket)}</span></div>
       ${cRoiX!==null?`<div class="crow"><span class="clbl">ROI</span><span class="cval" style="color:${cRoiX>=1?'var(--green)':'var(--red)'}">${fmtX(cRoiX)}</span></div>`:''}
+      <div style="margin-top:8px;font-size:9px;color:var(--muted);text-align:center;letter-spacing:1px;">VER ANÁLISE ›</div>
     </div>`;
   }).join('');
 
@@ -1536,9 +1586,9 @@ function buildExpData() {
 // ── FORMAT POPUP ──
 const EXP_STYLES = {
   pdf: [
+    {name:'Simples',desc:'Visual limpo igual ao dashboard simplificado',preview:'bg:#f8f8fb;color:#7c6fff',theme:'simple'},
     {name:'Simplificado',desc:'Branco limpo — fácil de ler e imprimir',preview:'bg:#ffffff;color:#16a34a',theme:'light'},
     {name:'Dark Pro',desc:'Fundo escuro igual ao dashboard',preview:'bg:#0a0a0f;color:#2dffb0',theme:'dark'},
-    {name:'Slate',desc:'Cinza escuro elegante, bordas sutis',preview:'bg:#1e1e2e;color:#cdd6f4',theme:'slate'},
     {name:'Neon',desc:'Preto com acentos em roxo vibrante',preview:'bg:#0d0d14;color:#a78bfa',theme:'neon'},
   ],
   csv: [
@@ -1626,6 +1676,7 @@ function confirmExport() {
 function fmtDate(d){return new Date(d+'T12:00:00').toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'2-digit',year:'numeric'});}
 
 const PDF_THEMES = {
+  simple:{bg:'#f8f8fb',surface:'#ffffff',surface2:'#f0f0f8',border:'#e0e0ec',text:'#111122',muted:'#888899',accent:'#7c6fff',green:'#16a34a',red:'#dc2626',yellow:'#ca8a04'},
   dark: {bg:'#0a0a0f',surface:'#111118',surface2:'#18181f',border:'#222230',text:'#e8e8f0',muted:'#555570',accent:'#7c6fff',green:'#2dffb0',red:'#ff4466',yellow:'#ffd12d'},
   light:{bg:'#f8f8fb',surface:'#ffffff',surface2:'#f0f0f8',border:'#e0e0ec',text:'#111122',muted:'#888899',accent:'#7c6fff',green:'#16a34a',red:'#dc2626',yellow:'#ca8a04'},
   slate:{bg:'#1e1e2e',surface:'#252535',surface2:'#2a2a3e',border:'#313145',text:'#cdd6f4',muted:'#6c7086',accent:'#cba6f7',green:'#a6e3a1',red:'#f38ba8',yellow:'#f9e2af'},
@@ -1736,22 +1787,32 @@ function doExportPDF(data, theme='dark') {
   const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>AdTrack — Relatório</title>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;700&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
   <style>*{margin:0;padding:0;box-sizing:border-box;}body{background:${t.bg};color:${t.text};font-family:'Inter',sans-serif;padding:32px;}
-  .wrap{max-width:960px;margin:0 auto;}</style></head><body><div class="wrap">
+  .wrap{max-width:960px;margin:0 auto;}
+  @media print{body{background:${t.bg}!important;color:${t.text}!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}button{display:none!important;}}</style></head><body><div class="wrap">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;padding-bottom:18px;border-bottom:2px solid ${t.accent};">
       <div style="font-family:'IBM Plex Mono',monospace;font-size:20px;font-weight:700;letter-spacing:3px;color:${t.accent};">AD<span style="color:${t.text};">TRACK</span></div>
       <div style="text-align:right;font-size:11px;color:${t.muted};">${data.period||periodLabel()}<br>${new Date().toLocaleDateString('pt-BR')}</div>
     </div>
     ${bodyContent}
     <div style="margin-top:32px;padding-top:14px;border-top:1px solid ${t.border};font-size:10px;color:${t.muted};text-align:center;">Gerado por AdTrack · ${new Date().toLocaleString('pt-BR')}</div>
-  <div style="position:fixed;bottom:24px;right:24px;display:flex;gap:10px;z-index:999;">
-    <button onclick="window.print()" style="background:#7c6fff;color:#fff;border:none;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;box-shadow:0 4px 20px rgba(124,111,255,0.4);">🖨️ Imprimir / Salvar PDF</button>
-    <button onclick="downloadHTML()" style="background:#2dffb0;color:#000;border:none;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;box-shadow:0 4px 20px rgba(45,255,176,0.3);">⬇ Baixar HTML</button>
+  <div style="position:fixed;bottom:24px;right:24px;display:flex;gap:8px;z-index:999;flex-wrap:wrap;justify-content:flex-end;">
+    <button onclick="copyReport()" id="copyBtn" style="background:${t.surface};color:${t.text};border:1px solid ${t.border};padding:11px 18px;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;">📋 Copiar</button>
+    <button onclick="downloadHTML()" style="background:${t.surface};color:${t.text};border:1px solid ${t.border};padding:11px 18px;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;">⬇ Baixar</button>
+    <button onclick="window.print()" style="background:${t.accent};color:#fff;border:none;padding:11px 18px;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;">🖨️ Salvar PDF</button>
   </div>
   <script>
   function downloadHTML(){
     const blob=new Blob([document.documentElement.outerHTML],{type:'text/html'});
     const a=document.createElement('a');a.href=URL.createObjectURL(blob);
     a.download='adtrack-relatorio-'+Date.now()+'.html';a.click();
+  }
+  function copyReport(){
+    const el=document.querySelector('.wrap');
+    const txt=el.innerText;
+    navigator.clipboard.writeText(txt).then(()=>{
+      const btn=document.getElementById('copyBtn');
+      btn.textContent='✓ Copiado!';setTimeout(()=>btn.textContent='📋 Copiar',2000);
+    });
   }
   <\/script>
   </div></body></html>`;
@@ -1893,6 +1954,86 @@ function doExportTXT(data, style='whatsapp') {
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);
   a.download=`adtrack_${expType}_${style}_${Date.now()}.txt`;a.click();
   showToast('Texto baixado! ✓');
+}
+
+// ══════════════════════════════════════════════
+//  ANÁLISE INDIVIDUAL DE CRIATIVO
+// ══════════════════════════════════════════════
+function openCriaAnalise(cid) {
+  const cr = getC(cid) || {hex:'#888',cor:'',id:cid};
+  const dias = buildDias();
+
+  // All vendas and custos for this criativo (no period filter)
+  const allVendas = state.vendas.filter(v=>v.criativo===cid);
+  const allCustos = state.custos.filter(c=>c.criativo===cid);
+  const totFat = allVendas.reduce((s,v)=>s+Number(v.valor),0);
+  const totCusto = allCustos.reduce((s,c)=>s+Number(c.valor),0);
+  const totLucro = totFat - totCusto;
+  const totRoi = totCusto > 0 ? totFat/totCusto : null;
+  const totMargem = totFat > 0 ? (totLucro/totFat)*100 : null;
+  const totCpa = allVendas.length && totCusto > 0 ? totCusto/allVendas.length : null;
+
+  document.getElementById('ca-dot').style.background = cr.hex;
+  document.getElementById('ca-title').textContent = cid;
+  document.getElementById('ca-title').style.color = cr.hex;
+  document.getElementById('ca-sub').textContent = cr.cor + (cr.data ? ' · desde ' + cr.data : '');
+
+  document.getElementById('ca-summary').innerHTML = [
+    ['Vendas', allVendas.length, 'var(--text)'],
+    ['Faturamento', fmtBRL(totFat), 'var(--green)'],
+    ['Gasto', fmtBRL(totCusto), 'var(--red)'],
+    ['Lucro', fmtBRL(totLucro), totLucro>=0?'var(--green)':'var(--red)'],
+    ['ROI ×', totRoi?fmtX(totRoi):'—', totRoi===null?'var(--muted)':totRoi>=1?'var(--green)':'var(--red)'],
+    ['Margem', totMargem?fmtPct(totMargem):'—', totMargem===null?'var(--muted)':totMargem>=0?'var(--green)':'var(--red)'],
+    ['CPA', totCpa?fmtBRL(totCpa):'—', 'var(--yellow)'],
+    ['Ticket', allVendas.length?fmtBRL(totFat/allVendas.length):'—', 'var(--muted)'],
+  ].map(([l,v,c])=>`<div class="ca-sum-card"><div class="ca-sum-lbl">${l}</div><div class="ca-sum-val" style="color:${c}">${v}</div></div>`).join('');
+
+  // Days where this criativo appeared
+  const dKeys = Object.keys(dias)
+    .filter(d=>dias[d].crias?.[cid])
+    .sort((a,b)=>b.localeCompare(a));
+
+  let prevRoi = null;
+  document.getElementById('ca-days').innerHTML = dKeys.length ? dKeys.map(d=>{
+    const cs = dias[d].crias[cid];
+    const lucro = cs.fat - cs.custo;
+    const roi = cs.custo > 0 ? cs.fat/cs.custo : null;
+    const margem = cs.fat > 0 ? (lucro/cs.fat)*100 : null;
+    const dateStr = new Date(d+'T12:00:00').toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'2-digit'});
+
+    // trend vs previous day
+    let trendHTML = '';
+    if(prevRoi !== null && roi !== null) {
+      const diff = roi - prevRoi;
+      const pct = prevRoi > 0 ? (diff/prevRoi)*100 : 0;
+      trendHTML = `<span class="ca-trend" style="background:${diff>=0?'rgba(45,255,176,0.12)':'rgba(255,68,102,0.12)'};color:${diff>=0?'var(--green)':'var(--red)'};">${diff>=0?'▲':'▼'} ${Math.abs(pct).toFixed(0)}%</span>`;
+    }
+    prevRoi = roi;
+
+    const salesPills = (cs.vendas||[]).map(v=>`<span style="font-family:'IBM Plex Mono',monospace;font-size:11px;background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:3px 8px;color:var(--green);">${fmtBRL(v.valor)}${v.cliente?` <span style="color:var(--muted)">${v.cliente}</span>`:''}</span>`).join('');
+
+    return `<div class="ca-day-row">
+      <div class="ca-day-date">
+        <div class="ca-day-date-str">${dateStr}</div>
+        <div class="ca-day-date-sub">${cs.qtd} venda${cs.qtd!==1?'s':''} ${trendHTML}</div>
+      </div>
+      <div class="ca-day-metrics">
+        <div class="ca-day-metric"><div class="ca-day-metric-lbl">Fat</div><div class="ca-day-metric-val">${fmtBRL(cs.fat)}</div></div>
+        <div class="ca-day-metric"><div class="ca-day-metric-lbl">Gasto</div><div class="ca-day-metric-val neg">${fmtBRL(cs.custo)}</div></div>
+        <div class="ca-day-metric"><div class="ca-day-metric-lbl">Lucro</div><div class="ca-day-metric-val ${lucro>=0?'pos':'neg'}">${fmtBRL(lucro)}</div></div>
+        <div class="ca-day-metric"><div class="ca-day-metric-lbl">ROI</div><div class="ca-day-metric-val ${roi===null?'':roi>=1?'pos':'neg'}">${roi?fmtX(roi):'—'}</div></div>
+        <div class="ca-day-metric"><div class="ca-day-metric-lbl">Margem</div><div class="ca-day-metric-val ${margem===null?'':margem>=0?'pos':'neg'}">${margem?fmtPct(margem):'—'}</div></div>
+      </div>
+    </div>
+    ${salesPills?`<div style="display:flex;flex-wrap:wrap;gap:6px;padding:8px 14px;border-bottom:1px solid var(--border);background:var(--bg);">${salesPills}</div>`:''}`;
+  }).join('') : `<div class="empty"><div class="ei">📭</div><p>Nenhum dado encontrado.</p></div>`;
+
+  document.getElementById('cria-analise-overlay').classList.add('open');
+}
+
+function closeCriaAnalise() {
+  document.getElementById('cria-analise-overlay').classList.remove('open');
 }
 
 function renderAll(){renderDashboard();renderDiario();renderVendas();renderCriativos();renderCustos();renderFase2();}
