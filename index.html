@@ -1523,8 +1523,7 @@ function doExportCSV(data) {
   let csv = '';
   if (data.type === 'comparativo') {
     if (!data.dA || !data.dB) { showToast('Selecione os dois dias.','#ff2d55'); return; }
-    csv = 'Métrica,Dia A (' + data.dA + '),Dia B (' + data.dB + ')
-';
+    csv = `Métrica,Dia A (${data.dA}),Dia B (${data.dB})\n`;
     const sa = data.A||{fat:0,qtd:0,custo:0}, sb = data.B||{fat:0,qtd:0,custo:0};
     const lA=sa.fat-sa.custo, lB=sb.fat-sb.custo;
     csv += `Vendas,${sa.qtd},${sb.qtd}
@@ -1538,9 +1537,7 @@ function doExportCSV(data) {
     const rA=sa.custo>0?sa.fat/sa.custo:0, rB=sb.custo>0?sb.fat/sb.custo:0;
     csv += `ROI,${rA.toFixed(2)}x,${rB.toFixed(2)}x
 `;
-    csv += '
-Criativo,Fat A,Vendas A,ROI A,Fat B,Vendas B,ROI B
-';
+    csv += '\nCriativo,Fat A,Vendas A,ROI A,Fat B,Vendas B,ROI B\n';
     const allC=[...new Set([...Object.keys(sa.crias||{}),...Object.keys(sb.crias||{})])];
     allC.forEach(cid=>{
       const ca=sa.crias?.[cid]||{fat:0,qtd:0,custo:0}, cb=sb.crias?.[cid]||{fat:0,qtd:0,custo:0};
@@ -1549,16 +1546,13 @@ Criativo,Fat A,Vendas A,ROI A,Fat B,Vendas B,ROI B
 `;
     });
   } else {
-    csv = 'Criativo,Cor,Vendas,Faturamento,Gasto,Lucro,ROI,Margem %,CPA
-';
+    csv = 'Criativo,Cor,Vendas,Faturamento,Gasto,Lucro,ROI,Margem %,CPA\n';
     data.criaStats.forEach(c=>{
       csv+=`${c.id},${c.cor},${c.qtd},${c.fat.toFixed(2)},${c.custo.toFixed(2)},${c.lucro.toFixed(2)},${c.roi?c.roi.toFixed(2)+'x':'—'},${c.margem?c.margem.toFixed(1)+'%':'—'},${c.cpa?c.cpa.toFixed(2):'—'}
 `;
     });
     if (data.type === 'diario') {
-      csv += '
-Data,Vendas,Faturamento,Gasto,Lucro,ROI
-';
+      csv += '\nData,Vendas,Faturamento,Gasto,Lucro,ROI\n';
       data.dKeys.forEach(d=>{
         const dia=data.dias[d]; const l=dia.fat-dia.custo; const r=dia.custo>0?dia.fat/dia.custo:0;
         csv+=`${d},${dia.qtd},${dia.fat.toFixed(2)},${dia.custo.toFixed(2)},${l.toFixed(2)},${dia.custo>0?r.toFixed(2)+'x':'—'}
@@ -1575,18 +1569,14 @@ Data,Vendas,Faturamento,Gasto,Lucro,ROI
 // ── TXT ──
 function doExportTXT(data) {
   const line = (n=40) => '─'.repeat(n);
-  let txt = 'ADTRACK — RELATÓRIO
-' + line() + '
-';
+  let txt = 'ADTRACK — RELATÓRIO\n' + line() + '\n';
   txt += `Tipo: ${expType.toUpperCase()}
 `;
   if (data.period) txt += `Período: ${data.period}
 `;
   txt += `Gerado em: ${new Date().toLocaleString('pt-BR')}
 `;
-  txt += line() + '
-
-';
+  txt += line() + '\n\n';
 
   if (data.type === 'comparativo') {
     if (!data.dA || !data.dB) { showToast('Selecione os dois dias.','#ff2d55'); return; }
@@ -1749,4 +1739,3 @@ initDPs();
 renderAll();
 </script>
 </body>
-</html>
