@@ -1743,6 +1743,17 @@ function doExportPDF(data, theme='dark') {
     </div>
     ${bodyContent}
     <div style="margin-top:32px;padding-top:14px;border-top:1px solid ${t.border};font-size:10px;color:${t.muted};text-align:center;">Gerado por AdTrack · ${new Date().toLocaleString('pt-BR')}</div>
+  <div style="position:fixed;bottom:24px;right:24px;display:flex;gap:10px;z-index:999;">
+    <button onclick="window.print()" style="background:#7c6fff;color:#fff;border:none;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;box-shadow:0 4px 20px rgba(124,111,255,0.4);">🖨️ Imprimir / Salvar PDF</button>
+    <button onclick="downloadHTML()" style="background:#2dffb0;color:#000;border:none;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;box-shadow:0 4px 20px rgba(45,255,176,0.3);">⬇ Baixar HTML</button>
+  </div>
+  <script>
+  function downloadHTML(){
+    const blob=new Blob([document.documentElement.outerHTML],{type:'text/html'});
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+    a.download='adtrack-relatorio-'+Date.now()+'.html';a.click();
+  }
+  <\/script>
   </div></body></html>`;
 
   const w=window.open('','_blank');
