@@ -307,6 +307,21 @@ tr:hover td{background:var(--surface2);}
 .tdot2{width:7px;height:7px;border-radius:50%;}
 
 ::-webkit-scrollbar{width:5px;height:5px;}
+/* ── EXPORTAR ── */
+.exp-type-card{background:var(--surface);border:2px solid var(--border);border-radius:12px;padding:18px;cursor:pointer;transition:all 0.18s;text-align:left;}
+.exp-type-card:hover{border-color:var(--accent);background:rgba(124,111,255,0.05);}
+.exp-type-card.active{border-color:var(--accent);background:rgba(124,111,255,0.08);}
+.exp-type-icon{font-size:24px;margin-bottom:10px;}
+.exp-type-name{font-size:13px;font-weight:700;margin-bottom:4px;}
+.exp-type-desc{font-size:11px;color:var(--muted);line-height:1.4;}
+.exp-fmt-btn{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 22px;cursor:pointer;transition:all 0.18s;display:flex;flex-direction:column;gap:4px;text-align:left;min-width:160px;color:var(--text);}
+.exp-fmt-btn:hover{border-color:var(--accent);background:rgba(124,111,255,0.06);transform:translateY(-2px);}
+.exp-fmt-icon{font-size:22px;margin-bottom:4px;}
+.exp-fmt-label{font-size:13px;font-weight:700;font-family:'Inter',sans-serif;}
+.exp-fmt-sub{font-size:10px;color:var(--muted);font-family:'Inter',sans-serif;}
+/* PDF preview wrapper */
+#exp-preview{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:24px;}
+/* PDF print styles injected dynamically */
 ::-webkit-scrollbar-track{background:var(--bg);}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
 @media(max-width:900px){.page{padding:14px 12px;}nav{padding:0 10px;}#rgrid{grid-template-columns:1fr!important;}.day-metrics{flex-wrap:wrap;}.day-cria-metrics{flex-wrap:wrap;}}
@@ -325,6 +340,7 @@ tr:hover td{background:var(--surface2);}
     <button class="tab" onclick="showPage('fase2',this)">ROI & CPA</button>
     <button class="tab" onclick="showPage('comparativo',this)">Comparativo</button>
     <button class="tab" onclick="showPage('diagnostico',this)">Diagnóstico</button>
+    <button class="tab" onclick="showPage('exportar',this)">⬇ Exportar</button>
   </div>
 </nav>
 
@@ -427,6 +443,87 @@ tr:hover td{background:var(--surface2);}
     <button class="pb" onclick="setDiagFilter('month',this)">Mês</button>
   </div>
   <div id="diagnostico-content"></div>
+</div>
+
+<!-- EXPORTAR -->
+<div class="page" id="page-exportar">
+  <div class="ph"><h1>Exportar Relatório</h1><p>Escolha o tipo, selecione as datas e baixe no formato que preferir</p></div>
+
+  <!-- TYPE SELECTOR -->
+  <div class="stitle">Tipo de Relatório</div>
+  <div id="exp-type-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-bottom:28px;">
+    <div class="exp-type-card active" onclick="selectExpType('diario',this)" data-type="diario">
+      <div class="exp-type-icon">📅</div>
+      <div class="exp-type-name">Relatório Diário</div>
+      <div class="exp-type-desc">Performance por dia com criativos</div>
+    </div>
+    <div class="exp-type-card" onclick="selectExpType('diagnostico',this)" data-type="diagnostico">
+      <div class="exp-type-icon">🔍</div>
+      <div class="exp-type-name">Diagnóstico</div>
+      <div class="exp-type-desc">Ranking, destaques e sugestões</div>
+    </div>
+    <div class="exp-type-card" onclick="selectExpType('comparativo',this)" data-type="comparativo">
+      <div class="exp-type-icon">⚖️</div>
+      <div class="exp-type-name">Comparativo</div>
+      <div class="exp-type-desc">Dois dias lado a lado</div>
+    </div>
+    <div class="exp-type-card" onclick="selectExpType('completo',this)" data-type="completo">
+      <div class="exp-type-icon">📊</div>
+      <div class="exp-type-name">Relatório Completo</div>
+      <div class="exp-type-desc">Tudo — vendas, custos e ROI</div>
+    </div>
+  </div>
+
+  <!-- DATE CONFIG -->
+  <div class="stitle">Período</div>
+  <div id="exp-date-config" style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;margin-bottom:28px;">
+    <div id="exp-date-normal" style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;">
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <span style="font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);">De</span>
+        <div id="dpExpFromWrap" class="dp-wrap"></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <span style="font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);">Até</span>
+        <div id="dpExpToWrap" class="dp-wrap"></div>
+      </div>
+    </div>
+    <div id="exp-date-comp" style="display:none;gap:10px;align-items:flex-end;flex-wrap:wrap;">
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <span style="font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);">Dia A</span>
+        <div id="dpExpCompAWrap" class="dp-wrap"></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <span style="font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);">Dia B</span>
+        <div id="dpExpCompBWrap" class="dp-wrap"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FORMAT BUTTONS -->
+  <div class="stitle">Formato</div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:32px;">
+    <button class="exp-fmt-btn" onclick="doExport('pdf')">
+      <span class="exp-fmt-icon">🖨️</span>
+      <span class="exp-fmt-label">PDF Visual</span>
+      <span class="exp-fmt-sub">Layout bonito para imprimir ou enviar</span>
+    </button>
+    <button class="exp-fmt-btn" onclick="doExport('csv')">
+      <span class="exp-fmt-icon">📗</span>
+      <span class="exp-fmt-label">Planilha CSV</span>
+      <span class="exp-fmt-sub">Abrir no Excel ou Google Sheets</span>
+    </button>
+    <button class="exp-fmt-btn" onclick="doExport('txt')">
+      <span class="exp-fmt-icon">📄</span>
+      <span class="exp-fmt-label">Texto Simples</span>
+      <span class="exp-fmt-sub">Copiar, colar ou enviar no WhatsApp</span>
+    </button>
+  </div>
+
+  <!-- PREVIEW -->
+  <div id="exp-preview-wrap" style="display:none;">
+    <div class="stitle">Pré-visualização</div>
+    <div id="exp-preview"></div>
+  </div>
 </div>
 
 <!-- MODALS -->
@@ -1009,7 +1106,7 @@ function renderFase2(){
 }
 
 // ── DATEPICKER INSTANCES ──
-let dpVenda, dpCria, dpCusto, dpFrom, dpTo, dpDiarioFrom, dpDiarioTo, dpCompA, dpCompB;
+let dpVenda, dpCria, dpCusto, dpFrom, dpTo, dpDiarioFrom, dpDiarioTo, dpCompA, dpCompB, dpExpFrom, dpExpTo, dpExpCompA, dpExpCompB;
 
 function initDPs(){
   const today=new Date().toISOString().slice(0,10);
@@ -1081,6 +1178,7 @@ function showPage(id,btn){
   if(id==='diario') renderDiario();
   if(id==='fase2') renderFase2();
   if(id==='diagnostico') renderDiagnostico('all');
+  if(id==='exportar') initExportar();
 }
 
 function openModal(type){
@@ -1347,6 +1445,300 @@ function renderDiagnostico(period) {
         </div>`).join('')}</div>
     </div>`:''}
   `;
+}
+
+
+// ══════════════════════════════════════════════
+//  EXPORTAR
+// ══════════════════════════════════════════════
+let expType = 'diario';
+
+function initExportar() {
+  // Lazily init pickers — elements only exist once page is visible
+  if (!dpExpFrom) {
+    dpExpFrom  = new DP('dpExpFromWrap', {ph:'Data inicial'});
+    dpExpTo    = new DP('dpExpToWrap',   {ph:'Data final'});
+    dpExpCompA = new DP('dpExpCompAWrap',{ph:'Dia A'});
+    dpExpCompB = new DP('dpExpCompBWrap',{ph:'Dia B'});
+  }
+  // reset to diario selection
+  document.querySelectorAll('.exp-type-card').forEach(c=>c.classList.remove('active'));
+  document.querySelector('[data-type="diario"]')?.classList.add('active');
+  expType = 'diario';
+  document.getElementById('exp-date-normal').style.display='flex';
+  document.getElementById('exp-date-comp').style.display='none';
+  document.getElementById('exp-preview-wrap').style.display='none';
+}
+
+function selectExpType(type, el) {
+  expType = type;
+  document.querySelectorAll('.exp-type-card').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  const isComp = type === 'comparativo';
+  document.getElementById('exp-date-normal').style.display = isComp ? 'none' : 'flex';
+  document.getElementById('exp-date-comp').style.display   = isComp ? 'flex' : 'none';
+  document.getElementById('exp-preview-wrap').style.display='none';
+}
+
+function getExpVendas() {
+  const from = dpExpFrom?.getValue(), to = dpExpTo?.getValue();
+  return state.vendas.filter(v=>(!from||v.data>=from)&&(!to||v.data<=to));
+}
+function getExpCustos() {
+  const from = dpExpFrom?.getValue(), to = dpExpTo?.getValue();
+  return state.custos.filter(c=>(!from||c.data>=from)&&(!to||c.data<=to));
+}
+function periodLabel() {
+  const from = dpExpFrom?.getValue(), to = dpExpTo?.getValue();
+  if (from && to) return `${from} → ${to}`;
+  if (from) return `a partir de ${from}`;
+  if (to) return `até ${to}`;
+  return 'Todo o período';
+}
+
+// ── BUILD DATA per type ──
+function buildExpData() {
+  if (expType === 'comparativo') {
+    const dA = dpExpCompA?.getValue(), dB = dpExpCompB?.getValue();
+    const dias = buildDias();
+    return { type:'comparativo', dA, dB, A: dias[dA]||null, B: dias[dB]||null };
+  }
+  const vendas = getExpVendas(), custos = getExpCustos();
+  const dias = buildDias();
+  // filter dias by period
+  const from = dpExpFrom?.getValue(), to = dpExpTo?.getValue();
+  const dKeys = Object.keys(dias).filter(d=>(!from||d>=from)&&(!to||d<=to)).sort((a,b)=>b.localeCompare(a));
+  const criaStats = state.criativos.map(c => {
+    const vs = vendas.filter(v=>v.criativo===c.id);
+    const fat=vs.reduce((s,v)=>s+Number(v.valor),0);
+    const custo=custos.filter(x=>x.criativo===c.id).reduce((s,x)=>s+Number(x.valor),0);
+    const lucro=fat-custo, roi=custo>0?fat/custo:null, margem=fat>0?(lucro/fat)*100:null, cpa=vs.length&&custo>0?custo/vs.length:null;
+    return {...c, fat, custo, lucro, roi, margem, cpa, qtd:vs.length};
+  });
+  return { type:expType, vendas, custos, dias, dKeys, criaStats, period:periodLabel() };
+}
+
+// ── CSV ──
+function doExportCSV(data) {
+  let csv = '';
+  if (data.type === 'comparativo') {
+    if (!data.dA || !data.dB) { showToast('Selecione os dois dias.','#ff2d55'); return; }
+    csv = 'Métrica,Dia A (' + data.dA + '),Dia B (' + data.dB + ')
+';
+    const sa = data.A||{fat:0,qtd:0,custo:0}, sb = data.B||{fat:0,qtd:0,custo:0};
+    const lA=sa.fat-sa.custo, lB=sb.fat-sb.custo;
+    csv += `Vendas,${sa.qtd},${sb.qtd}
+`;
+    csv += `Faturamento,${sa.fat.toFixed(2)},${sb.fat.toFixed(2)}
+`;
+    csv += `Gasto,${sa.custo.toFixed(2)},${sb.custo.toFixed(2)}
+`;
+    csv += `Lucro,${lA.toFixed(2)},${lB.toFixed(2)}
+`;
+    const rA=sa.custo>0?sa.fat/sa.custo:0, rB=sb.custo>0?sb.fat/sb.custo:0;
+    csv += `ROI,${rA.toFixed(2)}x,${rB.toFixed(2)}x
+`;
+    csv += '
+Criativo,Fat A,Vendas A,ROI A,Fat B,Vendas B,ROI B
+';
+    const allC=[...new Set([...Object.keys(sa.crias||{}),...Object.keys(sb.crias||{})])];
+    allC.forEach(cid=>{
+      const ca=sa.crias?.[cid]||{fat:0,qtd:0,custo:0}, cb=sb.crias?.[cid]||{fat:0,qtd:0,custo:0};
+      const raA=ca.custo>0?ca.fat/ca.custo:0, raB=cb.custo>0?cb.fat/cb.custo:0;
+      csv+=`${cid},${ca.fat.toFixed(2)},${ca.qtd},${raA.toFixed(2)}x,${cb.fat.toFixed(2)},${cb.qtd},${raB.toFixed(2)}x
+`;
+    });
+  } else {
+    csv = 'Criativo,Cor,Vendas,Faturamento,Gasto,Lucro,ROI,Margem %,CPA
+';
+    data.criaStats.forEach(c=>{
+      csv+=`${c.id},${c.cor},${c.qtd},${c.fat.toFixed(2)},${c.custo.toFixed(2)},${c.lucro.toFixed(2)},${c.roi?c.roi.toFixed(2)+'x':'—'},${c.margem?c.margem.toFixed(1)+'%':'—'},${c.cpa?c.cpa.toFixed(2):'—'}
+`;
+    });
+    if (data.type === 'diario') {
+      csv += '
+Data,Vendas,Faturamento,Gasto,Lucro,ROI
+';
+      data.dKeys.forEach(d=>{
+        const dia=data.dias[d]; const l=dia.fat-dia.custo; const r=dia.custo>0?dia.fat/dia.custo:0;
+        csv+=`${d},${dia.qtd},${dia.fat.toFixed(2)},${dia.custo.toFixed(2)},${l.toFixed(2)},${dia.custo>0?r.toFixed(2)+'x':'—'}
+`;
+      });
+    }
+  }
+  const blob = new Blob(['﻿'+csv], {type:'text/csv;charset=utf-8;'});
+  const a = document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download=`adtrack_${expType}_${Date.now()}.csv`; a.click();
+  showToast('CSV baixado! ✓');
+}
+
+// ── TXT ──
+function doExportTXT(data) {
+  const line = (n=40) => '─'.repeat(n);
+  let txt = 'ADTRACK — RELATÓRIO
+' + line() + '
+';
+  txt += `Tipo: ${expType.toUpperCase()}
+`;
+  if (data.period) txt += `Período: ${data.period}
+`;
+  txt += `Gerado em: ${new Date().toLocaleString('pt-BR')}
+`;
+  txt += line() + '
+
+';
+
+  if (data.type === 'comparativo') {
+    if (!data.dA || !data.dB) { showToast('Selecione os dois dias.','#ff2d55'); return; }
+    const sa=data.A||{fat:0,qtd:0,custo:0}, sb=data.B||{fat:0,qtd:0,custo:0};
+    const lA=sa.fat-sa.custo, lB=sb.fat-sb.custo;
+    txt += `DIA A: ${data.dA}
+`;
+    txt += `  Vendas: ${sa.qtd} | Fat: ${fmtBRL(sa.fat)} | Gasto: ${fmtBRL(sa.custo)} | Lucro: ${fmtBRL(lA)}
+
+`;
+    txt += `DIA B: ${data.dB}
+`;
+    txt += `  Vendas: ${sb.qtd} | Fat: ${fmtBRL(sb.fat)} | Gasto: ${fmtBRL(sb.custo)} | Lucro: ${fmtBRL(lB)}
+
+`;
+    txt += `VENCEDOR FATURAMENTO: ${sa.fat>=sb.fat?'Dia A':'Dia B'}
+`;
+    const rA=sa.custo>0?sa.fat/sa.custo:0, rB=sb.custo>0?sb.fat/sb.custo:0;
+    txt += `VENCEDOR ROI: ${rA>=rB?'Dia A ('+fmtX(rA)+')':'Dia B ('+fmtX(rB)+')'}
+`;
+  } else {
+    const tot = data.criaStats.reduce((s,c)=>({fat:s.fat+c.fat,custo:s.custo+c.custo,qtd:s.qtd+c.qtd}),{fat:0,custo:0,qtd:0});
+    txt += `RESUMO GERAL
+`;
+    txt += `  Total vendas: ${tot.qtd} | Faturamento: ${fmtBRL(tot.fat)} | Gasto: ${fmtBRL(tot.custo)} | Lucro: ${fmtBRL(tot.fat-tot.custo)}
+
+`;
+    txt += `CRIATIVOS
+${line()}
+`;
+    data.criaStats.filter(c=>c.fat>0||c.custo>0).sort((a,b)=>b.fat-a.fat).forEach((c,i)=>{
+      txt += `${i+1}. ${c.id} (${c.cor})
+`;
+      txt += `   Vendas: ${c.qtd} | Fat: ${fmtBRL(c.fat)} | Gasto: ${fmtBRL(c.custo)} | Lucro: ${fmtBRL(c.lucro)}
+`;
+      txt += `   ROI: ${c.roi?fmtX(c.roi):'—'} | Margem: ${c.margem?fmtPct(c.margem):'—'} | CPA: ${c.cpa?fmtBRL(c.cpa):'—'}
+
+`;
+    });
+    if (data.type === 'diario') {
+      txt += `DIAS
+${line()}
+`;
+      data.dKeys.forEach(d=>{
+        const dia=data.dias[d]; const l=dia.fat-dia.custo; const r=dia.custo>0?fmtX(dia.fat/dia.custo):'—';
+        const ds=new Date(d+'T12:00:00').toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'2-digit'});
+        txt += `${ds}: ${dia.qtd} vendas | ${fmtBRL(dia.fat)} fat | ${fmtBRL(dia.custo)} gasto | ${fmtBRL(l)} lucro | ROI ${r}
+`;
+      });
+    }
+  }
+  const blob = new Blob([txt], {type:'text/plain;charset=utf-8;'});
+  const a = document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download=`adtrack_${expType}_${Date.now()}.txt`; a.click();
+  showToast('TXT baixado! ✓');
+}
+
+// ── PDF ──
+function doExportPDF(data) {
+  const fmtDate = d => new Date(d+'T12:00:00').toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'2-digit',year:'numeric'});
+
+  let body = '';
+  if (data.type === 'comparativo') {
+    if (!data.dA || !data.dB) { showToast('Selecione os dois dias.','#ff2d55'); return; }
+    const sa=data.A||{fat:0,qtd:0,custo:0,crias:{}}, sb=data.B||{fat:0,qtd:0,custo:0,crias:{}};
+    const lA=sa.fat-sa.custo, lB=sb.fat-sb.custo, rA=sa.custo>0?sa.fat/sa.custo:null, rB=sb.custo>0?sb.fat/sb.custo:null;
+    const col = (lbl,va,vb,fmt,hb=true) => {
+      const aw=hb?va>vb:va<vb, bw=hb?vb>va:vb<va;
+      return `<tr><td class="ml">${lbl}</td><td style="color:${aw?'#16a34a':bw?'#dc2626':'#111'};font-weight:700">${fmt(va)}</td><td style="color:${bw?'#16a34a':aw?'#dc2626':'#111'};font-weight:700">${fmt(vb)}</td></tr>`;
+    };
+    body = `<h2 style="color:#7c6fff;font-size:15px;margin:0 0 12px">Comparativo de Dias</h2>
+    <table class="ptable"><thead><tr><th>Métrica</th><th>Dia A — ${fmtDate(data.dA)}</th><th>Dia B — ${fmtDate(data.dB)}</th></tr></thead><tbody>
+    ${col('Vendas',sa.qtd,sb.qtd,v=>v+'',true)}
+    ${col('Faturamento',sa.fat,sb.fat,fmtBRL)}
+    ${col('Gasto',sa.custo,sb.custo,fmtBRL,false)}
+    ${col('Lucro',lA,lB,fmtBRL)}
+    <tr><td class="ml">ROI</td><td style="color:${rA&&rA>=(rB||0)?'#16a34a':'#dc2626'};font-weight:700">${rA?fmtX(rA):'—'}</td><td style="color:${rB&&rB>(rA||0)?'#16a34a':'#dc2626'};font-weight:700">${rB?fmtX(rB):'—'}</td></tr>
+    </tbody></table>`;
+  } else {
+    const tot = data.criaStats.reduce((s,c)=>({fat:s.fat+c.fat,custo:s.custo+c.custo,qtd:s.qtd+c.qtd,lucro:s.lucro+(c.fat-c.custo)}),{fat:0,custo:0,qtd:0,lucro:0});
+    body = `
+    <div class="psummary">
+      <div class="psumitem"><div class="psumlab">Total Vendas</div><div class="psumval">${tot.qtd}</div></div>
+      <div class="psumitem"><div class="psumlab">Faturamento</div><div class="psumval" style="color:#16a34a">${fmtBRL(tot.fat)}</div></div>
+      <div class="psumitem"><div class="psumlab">Gasto</div><div class="psumval" style="color:#dc2626">${fmtBRL(tot.custo)}</div></div>
+      <div class="psumitem"><div class="psumlab">Lucro</div><div class="psumval" style="color:${tot.lucro>=0?'#16a34a':'#dc2626'}">${fmtBRL(tot.lucro)}</div></div>
+      ${tot.custo>0?`<div class="psumitem"><div class="psumlab">ROI</div><div class="psumval" style="color:${tot.fat/tot.custo>=1?'#16a34a':'#dc2626'}">${fmtX(tot.fat/tot.custo)}</div></div>`:''}
+    </div>
+    <h3 class="psec">Performance por Criativo</h3>
+    <table class="ptable"><thead><tr><th>Criativo</th><th>Vendas</th><th>Faturamento</th><th>Gasto</th><th>Lucro</th><th>ROI</th><th>Margem</th><th>CPA</th></tr></thead><tbody>
+    ${data.criaStats.filter(c=>c.fat>0||c.custo>0).sort((a,b)=>b.fat-a.fat).map(c=>`
+    <tr><td style="font-weight:700;color:#333">${c.id}<br><small style="color:#888;font-weight:400">${c.cor}</small></td>
+    <td>${c.qtd}</td><td>${fmtBRL(c.fat)}</td><td style="color:#dc2626">${fmtBRL(c.custo)}</td>
+    <td style="color:${c.lucro>=0?'#16a34a':'#dc2626'};font-weight:700">${fmtBRL(c.lucro)}</td>
+    <td style="color:${c.roi===null?'#888':c.roi>=1?'#16a34a':'#dc2626'};font-weight:700">${c.roi?fmtX(c.roi):'—'}</td>
+    <td style="color:${c.margem===null?'#888':c.margem>=0?'#16a34a':'#dc2626'}">${c.margem?fmtPct(c.margem):'—'}</td>
+    <td>${c.cpa?fmtBRL(c.cpa):'—'}</td></tr>`).join('')}
+    </tbody></table>
+    ${data.type==='diario'&&data.dKeys.length?`
+    <h3 class="psec">Histórico por Dia</h3>
+    <table class="ptable"><thead><tr><th>Data</th><th>Vendas</th><th>Faturamento</th><th>Gasto</th><th>Lucro</th><th>ROI</th></tr></thead><tbody>
+    ${data.dKeys.map(d=>{const dia=data.dias[d];const l=dia.fat-dia.custo;const r=dia.custo>0?dia.fat/dia.custo:null;return`<tr><td style="font-weight:600">${fmtDate(d)}</td><td>${dia.qtd}</td><td>${fmtBRL(dia.fat)}</td><td style="color:#dc2626">${fmtBRL(dia.custo)}</td><td style="color:${l>=0?'#16a34a':'#dc2626'};font-weight:700">${fmtBRL(l)}</td><td style="color:${r===null?'#888':r>=1?'#16a34a':'#dc2626'};font-weight:700">${r?fmtX(r):'—'}</td></tr>`;}).join('')}
+    </tbody></table>`:''}`;
+  }
+
+  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+  <title>AdTrack — Relatório</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'Helvetica Neue',Arial,sans-serif;background:#f8f8fb;color:#111;padding:32px;}
+    .wrap{max-width:900px;margin:0 auto;background:#fff;border-radius:12px;padding:36px;box-shadow:0 4px 24px rgba(0,0,0,0.08);}
+    .header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px;padding-bottom:20px;border-bottom:2px solid #7c6fff;}
+    .logo{font-size:22px;font-weight:900;letter-spacing:3px;color:#7c6fff;}
+    .logo span{color:#111;}
+    .meta{text-align:right;font-size:11px;color:#888;}
+    .meta strong{display:block;font-size:13px;color:#333;margin-bottom:2px;}
+    .psummary{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:24px;}
+    .psumitem{flex:1;min-width:100px;background:#f4f4f8;border-radius:8px;padding:12px 14px;}
+    .psumlab{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#888;margin-bottom:4px;}
+    .psumval{font-size:17px;font-weight:800;}
+    .psec{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#888;margin:24px 0 12px;padding-bottom:8px;border-bottom:1px solid #eee;}
+    .ptable{width:100%;border-collapse:collapse;font-size:12px;}
+    .ptable thead th{background:#f4f4f8;padding:9px 12px;text-align:left;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#888;}
+    .ptable tbody td{padding:9px 12px;border-top:1px solid #f0f0f0;}
+    .ptable tbody tr:hover td{background:#fafafa;}
+    .ml{color:#888;font-size:11px;text-transform:uppercase;letter-spacing:1px;font-weight:600;}
+    .footer{margin-top:32px;padding-top:16px;border-top:1px solid #eee;font-size:10px;color:#aaa;text-align:center;}
+    @media print{body{padding:0;background:#fff;}.wrap{box-shadow:none;border-radius:0;}}
+  </style></head><body>
+  <div class="wrap">
+    <div class="header">
+      <div class="logo">AD<span>TRACK</span></div>
+      <div class="meta"><strong>${expType.charAt(0).toUpperCase()+expType.slice(1)}</strong>${data.period||''}<br>${new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})}</div>
+    </div>
+    ${body}
+    <div class="footer">Gerado por AdTrack · ${new Date().toLocaleDateString('pt-BR')}</div>
+  </div>
+  <script>window.onload=()=>{window.print();}<\/script>
+  </body></html>`;
+
+  const w = window.open('','_blank');
+  w.document.write(html);
+  w.document.close();
+  showToast('PDF aberto para impressão! ✓');
+}
+
+// ── MAIN EXPORT DISPATCHER ──
+function doExport(fmt) {
+  const data = buildExpData();
+  if (fmt === 'pdf') doExportPDF(data);
+  else if (fmt === 'csv') doExportCSV(data);
+  else if (fmt === 'txt') doExportTXT(data);
 }
 
 function renderAll(){renderDashboard();renderDiario();renderVendas();renderCriativos();renderCustos();renderFase2();}
