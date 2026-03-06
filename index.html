@@ -465,6 +465,17 @@ tr:hover td{background:var(--surface2);}
 <!-- FASE 2 -->
 <div class="page" id="page-fase2">
   <div class="ph"><h1>ROI & CPA</h1><p>Análise avançada de performance financeira</p></div>
+  <div class="period-bar" style="margin-bottom:20px;">
+    <label>Período</label>
+    <button class="pb active" id="f2-all" onclick="setFase2Period('all',this)">Tudo</button>
+    <button class="pb" onclick="setFase2Period('today',this)">Hoje</button>
+    <button class="pb" onclick="setFase2Period('week',this)">Semana</button>
+    <button class="pb" onclick="setFase2Period('month',this)">Mês</button>
+    <span class="period-sep">|</span>
+    <div id="dpF2FromWrap" class="dp-wrap"></div>
+    <span class="period-sep">→</span>
+    <div id="dpF2ToWrap" class="dp-wrap"></div>
+  </div>
   <div id="fase2-cards" class="f2g"></div>
   <div id="fase2-empty" class="empty" style="display:none"><div class="ei">📊</div><p>Lance custos para calcular ROI e CPA.</p></div>
 </div>
@@ -864,6 +875,7 @@ let state=loadState();
 let nextId=Math.max(...[...state.vendas,...state.custos].map(x=>x.id||0),100)+1;
 let currentPeriod='all', customFrom=null, customTo=null;
 let diarioFilter='all', diarioFrom=null, diarioTo=null;
+let f2Period='all', f2From=null, f2To=null;
 let barChart=null;
 function save(){localStorage.setItem('adtrack_v5',JSON.stringify(state));}
 
@@ -1151,12 +1163,40 @@ function renderCustos(){
 }
 
 // ── FASE 2 ──
+function setFase2Period(p, btn) {
+  f2Period = p;
+  document.querySelectorAll('#page-fase2 .pb').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  if(p!=='custom'){f2From=null;f2To=null;dpF2From?._clear();dpF2To?._clear();}
+  renderFase2();
+}
+
+function filterF2Vendas(vendas) {
+  const now=new Date();
+  if(f2Period==='all') return vendas;
+  if(f2Period==='today'){const t=now.toISOString().slice(0,10);return vendas.filter(v=>v.data===t);}
+  if(f2Period==='week'){const s=new Date(now);s.setDate(now.getDate()-6);const sf=s.toISOString().slice(0,10);return vendas.filter(v=>v.data>=sf);}
+  if(f2Period==='month'){const y=now.getFullYear(),m=String(now.getMonth()+1).padStart(2,'0');return vendas.filter(v=>v.data.startsWith(y+'-'+m));}
+  if(f2Period==='custom') return vendas.filter(v=>(!f2From||v.data>=f2From)&&(!f2To||v.data<=f2To));
+  return vendas;
+}
+
+function filterF2Custos(custos) {
+  const now=new Date();
+  if(f2Period==='all') return custos;
+  if(f2Period==='today'){const t=now.toISOString().slice(0,10);return custos.filter(c=>c.data===t);}
+  if(f2Period==='week'){const s=new Date(now);s.setDate(now.getDate()-6);const sf=s.toISOString().slice(0,10);return custos.filter(c=>c.data>=sf);}
+  if(f2Period==='month'){const y=now.getFullYear(),m=String(now.getMonth()+1).padStart(2,'0');return custos.filter(c=>c.data&&c.data.startsWith(y+'-'+m));}
+  if(f2Period==='custom') return custos.filter(c=>(!f2From||c.data>=f2From)&&(!f2To||c.data<=f2To));
+  return custos;
+}
+
 function renderFase2(){
   const cards=document.getElementById('fase2-cards'),empty=document.getElementById('fase2-empty');
   if(!state.custos.length){cards.innerHTML='';empty.style.display='block';return;}
   empty.style.display='none';
-  const vendas=filterVendas(state.vendas);
-  const custosFilt=filterCustos(state.custos);
+  const vendas=filterF2Vendas(state.vendas);
+  const custosFilt=filterF2Custos(state.custos);
   cards.innerHTML=state.criativos.map(c=>{
     const s=statsFor(c.id,vendas),custo=custoTotalId(c.id,custosFilt),lucro=s.fat-custo;
     const rPct=custo?((lucro/custo)*100):null,rX=custo?(s.fat/custo):null,cpa=s.qtd?(custo/s.qtd):null,marg=s.fat?(lucro/s.fat)*100:null;
@@ -1176,7 +1216,7 @@ function renderFase2(){
 }
 
 // ── DATEPICKER INSTANCES ──
-let dpVenda, dpCria, dpCusto, dpFrom, dpTo, dpDiarioFrom, dpDiarioTo, dpCompA, dpCompB, dpExpFrom, dpExpTo, dpExpCompA, dpExpCompB;
+let dpVenda, dpCria, dpCusto, dpFrom, dpTo, dpDiarioFrom, dpDiarioTo, dpCompA, dpCompB, dpExpFrom, dpExpTo, dpExpCompA, dpExpCompB, dpF2From, dpF2To;
 
 function initDPs(){
   const today=new Date().toISOString().slice(0,10);
@@ -1189,6 +1229,8 @@ function initDPs(){
   dpDiarioTo   = new DP('dpDiarioToWrap',{ph:'Data final',onChange:(v)=>{diarioTo=v;if(v)setDiarioFilter('custom',null);else if(!diarioFrom)setDiarioFilter('all',null);}});
   dpCompA = new DP('dpCompAWrap',{ph:'Selecionar dia A'});
   dpCompB = new DP('dpCompBWrap',{ph:'Selecionar dia B'});
+  dpF2From = new DP('dpF2FromWrap',{ph:'Data inicial',onChange:(v)=>{f2From=v;if(v)setFase2Period('custom',null);else if(!f2To)setFase2Period('all',null);}});
+  dpF2To   = new DP('dpF2ToWrap',{ph:'Data final',onChange:(v)=>{f2To=v;if(v)setFase2Period('custom',null);else if(!f2From)setFase2Period('all',null);}});
 }
 
 // ── ACTIONS ──
@@ -1246,7 +1288,13 @@ function showPage(id,btn){
   if(btn) btn.classList.add('active');
   if(id==='dashboard') renderDashboard();
   if(id==='diario') renderDiario();
-  if(id==='fase2') renderFase2();
+  if(id==='fase2'){
+    if(!dpF2From){
+      dpF2From=new DP('dpF2FromWrap',{ph:'Data inicial',onChange:(v)=>{f2From=v;if(v)setFase2Period('custom',null);else if(!f2To)setFase2Period('all',null);}});
+      dpF2To=new DP('dpF2ToWrap',{ph:'Data final',onChange:(v)=>{f2To=v;if(v)setFase2Period('custom',null);else if(!f2From)setFase2Period('all',null);}});
+    }
+    renderFase2();
+  }
   if(id==='diagnostico') renderDiagnostico('all');
   if(id==='exportar') initExportar();
 }
@@ -1731,8 +1779,176 @@ function buildDayHTML(d, dia, t) {
   </div>`;
 }
 
+
+function doExportPDFSimple(data) {
+  const dias = buildDias();
+  const from = dpExpFrom?.getValue(), to = dpExpTo?.getValue();
+
+  // totals
+  let criaRows = '';
+  if(data.type === 'comparativo') {
+    const sa=data.A||{fat:0,qtd:0,custo:0,crias:{}}, sb=data.B||{fat:0,qtd:0,custo:0,crias:{}};
+    const lA=sa.fat-sa.custo, lB=sb.fat-sb.custo, rA=sa.custo>0?sa.fat/sa.custo:null, rB=sb.custo>0?sb.fat/sb.custo:null;
+    const mA=sa.fat>0?(lA/sa.fat)*100:null, mB=sb.fat>0?(lB/sb.fat)*100:null;
+
+    const bodyHTML = `
+    <h2 style="font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#7c6fff;margin:0 0 16px;">Comparativo de Dias</h2>
+    <table style="width:100%;border-collapse:collapse;font-size:13px;">
+      <thead>
+        <tr style="background:#f4f4f8;">
+          <th style="padding:10px 14px;text-align:left;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#888;border-bottom:2px solid #e0e0ec;">Métrica</th>
+          <th style="padding:10px 14px;text-align:right;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#888;border-bottom:2px solid #e0e0ec;">Dia A — ${data.dA}</th>
+          <th style="padding:10px 14px;text-align:right;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#888;border-bottom:2px solid #e0e0ec;">Dia B — ${data.dB}</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${[
+          ['Vendas', sa.qtd, sb.qtd, v=>String(v), true],
+          ['Faturamento', sa.fat, sb.fat, fmtBRL, true],
+          ['Gasto', sa.custo, sb.custo, fmtBRL, false],
+          ['Lucro', lA, lB, fmtBRL, true],
+          ['ROI ×', rA, rB, v=>v?fmtX(v):'—', true],
+          ['Margem', mA, mB, v=>v!==null?fmtPct(v):'—', true],
+        ].map(([l,va,vb,fmt,hb=true],i)=>{
+          const aW=hb?va>vb:va<vb, bW=hb?vb>va:vb<va;
+          const bg=i%2===0?'':'background:#fafafa;';
+          return `<tr style="${bg}">
+            <td style="padding:10px 14px;color:#555;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid #f0f0f0;">${l}</td>
+            <td style="padding:10px 14px;text-align:right;font-weight:700;color:${aW?'#16a34a':bW?'#dc2626':'#111'};border-bottom:1px solid #f0f0f0;">${fmt(va)}</td>
+            <td style="padding:10px 14px;text-align:right;font-weight:700;color:${bW?'#16a34a':aW?'#dc2626':'#111'};border-bottom:1px solid #f0f0f0;">${fmt(vb)}</td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>
+    <div style="margin-top:20px;padding:14px 18px;background:#f4f4f8;border-radius:8px;font-size:13px;">
+      <strong>🏆 Vencedor faturamento:</strong> ${sa.fat>=sb.fat?'Dia A ('+fmtBRL(sa.fat)+')':'Dia B ('+fmtBRL(sb.fat)+')'} &nbsp;·&nbsp;
+      <strong>💰 Maior lucro:</strong> ${lA>=lB?'Dia A ('+fmtBRL(lA)+')':'Dia B ('+fmtBRL(lB)+')'}
+    </div>`;
+
+    buildAndOpenSimple(data, bodyHTML);
+    return;
+  }
+
+  // Diário / Completo
+  const dKeys = Object.keys(dias).filter(d=>(!from||d>=from)&&(!to||d<=to)).sort((a,b)=>b.localeCompare(a));
+  if(!dKeys.length){showToast('Sem dados no período.','#ff2d55');return;}
+
+  const totFat=dKeys.reduce((s,d)=>s+dias[d].fat,0);
+  const totCusto=dKeys.reduce((s,d)=>s+dias[d].custo,0);
+  const totLucro=totFat-totCusto, totRoi=totCusto>0?totFat/totCusto:null;
+
+  // per-criativo totals across selected days
+  const criaMap = {};
+  dKeys.forEach(d=>{
+    Object.entries(dias[d].crias||{}).forEach(([cid,cs])=>{
+      if(!criaMap[cid]) criaMap[cid]={fat:0,custo:0,qtd:0,vendas:[]};
+      criaMap[cid].fat+=cs.fat; criaMap[cid].custo+=cs.custo; criaMap[cid].qtd+=cs.qtd;
+      criaMap[cid].vendas.push(...(cs.vendas||[]));
+    });
+  });
+
+  const criaList = Object.entries(criaMap).sort((a,b)=>b[1].fat-a[1].fat).map(([cid,cs],i)=>{
+    const cr=getC(cid)||{hex:'#888',cor:''};
+    const l=cs.fat-cs.custo, r=cs.custo>0?cs.fat/cs.custo:null, m=cs.fat>0?(l/cs.fat)*100:null, cpa=cs.qtd&&cs.custo>0?cs.custo/cs.qtd:null;
+    const bg=i%2===0?'':'background:#fafafa;';
+    return `<tr style="${bg}">
+      <td style="padding:10px 14px;border-bottom:1px solid #f0f0f0;">
+        <div style="font-weight:700;color:#111;font-size:13px;">${cid}</div>
+        <div style="font-size:10px;color:#888;text-transform:uppercase;letter-spacing:0.5px;">${cr.cor}</div>
+      </td>
+      <td style="padding:10px 14px;text-align:right;border-bottom:1px solid #f0f0f0;font-size:13px;">${cs.qtd}</td>
+      <td style="padding:10px 14px;text-align:right;border-bottom:1px solid #f0f0f0;font-size:13px;font-weight:700;">${fmtBRL(cs.fat)}</td>
+      <td style="padding:10px 14px;text-align:right;border-bottom:1px solid #f0f0f0;font-size:13px;color:#dc2626;">${fmtBRL(cs.custo)}</td>
+      <td style="padding:10px 14px;text-align:right;border-bottom:1px solid #f0f0f0;font-size:13px;font-weight:700;color:${l>=0?'#16a34a':'#dc2626'};">${fmtBRL(l)}</td>
+      <td style="padding:10px 14px;text-align:right;border-bottom:1px solid #f0f0f0;font-size:13px;font-weight:700;color:${r===null?'#aaa':r>=1?'#16a34a':'#dc2626'};">${r?fmtX(r):'—'}</td>
+      <td style="padding:10px 14px;text-align:right;border-bottom:1px solid #f0f0f0;font-size:13px;color:${m===null?'#aaa':m>=0?'#16a34a':'#dc2626'};">${m?fmtPct(m):'—'}</td>
+      <td style="padding:10px 14px;text-align:right;border-bottom:1px solid #f0f0f0;font-size:13px;">${cpa?fmtBRL(cpa):'—'}</td>
+    </tr>`;
+  }).join('');
+
+  const dayRows = dKeys.map((d,i)=>{
+    const dia=dias[d], l=dia.fat-dia.custo, r=dia.custo>0?dia.fat/dia.custo:null;
+    const ds=new Date(d+'T12:00:00').toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'2-digit',year:'numeric'});
+    const bg=i%2===0?'':'background:#fafafa;';
+    return `<tr style="${bg}">
+      <td style="padding:10px 14px;border-bottom:1px solid #f0f0f0;font-size:13px;font-weight:600;text-transform:capitalize;">${ds}</td>
+      <td style="padding:10px 14px;text-align:right;border-bottom:1px solid #f0f0f0;font-size:13px;">${dia.qtd}</td>
+      <td style="padding:10px 14px;text-align:right;border-bottom:1px solid #f0f0f0;font-size:13px;font-weight:700;">${fmtBRL(dia.fat)}</td>
+      <td style="padding:10px 14px;text-align:right;border-bottom:1px solid #f0f0f0;font-size:13px;color:#dc2626;">${fmtBRL(dia.custo)}</td>
+      <td style="padding:10px 14px;text-align:right;border-bottom:1px solid #f0f0f0;font-size:13px;font-weight:700;color:${l>=0?'#16a34a':'#dc2626'};">${fmtBRL(l)}</td>
+      <td style="padding:10px 14px;text-align:right;border-bottom:1px solid #f0f0f0;font-size:13px;font-weight:700;color:${r===null?'#aaa':r>=1?'#16a34a':'#dc2626'};">${r?fmtX(r):'—'}</td>
+    </tr>`;
+  }).join('');
+
+  const bodyHTML = `
+    <div style="display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap;">
+      ${[['Total Vendas',String(dKeys.reduce((s,d)=>s+dias[d].qtd,0)),'#111'],['Faturamento',fmtBRL(totFat),'#16a34a'],['Gasto',fmtBRL(totCusto),'#dc2626'],['Lucro',fmtBRL(totLucro),totLucro>=0?'#16a34a':'#dc2626'],['ROI',totRoi?fmtX(totRoi):'—',totRoi===null?'#aaa':totRoi>=1?'#16a34a':'#dc2626']].map(([l,v,c])=>`
+      <div style="flex:1;min-width:90px;background:#f4f4f8;border-radius:8px;padding:12px 14px;">
+        <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#888;margin-bottom:5px;">${l}</div>
+        <div style="font-size:17px;font-weight:800;color:${c};">${v}</div>
+      </div>`).join('')}
+    </div>
+
+    <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#888;margin:0 0 10px;padding-bottom:8px;border-bottom:1px solid #e0e0ec;">Performance por Criativo</div>
+    <table style="width:100%;border-collapse:collapse;">
+      <thead>
+        <tr style="background:#f4f4f8;">
+          ${['Criativo','Vendas','Faturamento','Gasto','Lucro','ROI','Margem','CPA'].map(h=>`<th style="padding:9px 14px;text-align:${h==='Criativo'?'left':'right'};font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#888;border-bottom:2px solid #e0e0ec;">${h}</th>`).join('')}
+        </tr>
+      </thead>
+      <tbody>${criaList}</tbody>
+    </table>
+
+    <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#888;margin:24px 0 10px;padding-bottom:8px;border-bottom:1px solid #e0e0ec;">Histórico por Dia</div>
+    <table style="width:100%;border-collapse:collapse;">
+      <thead>
+        <tr style="background:#f4f4f8;">
+          ${['Data','Vendas','Faturamento','Gasto','Lucro','ROI'].map(h=>`<th style="padding:9px 14px;text-align:${h==='Data'?'left':'right'};font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#888;border-bottom:2px solid #e0e0ec;">${h}</th>`).join('')}
+        </tr>
+      </thead>
+      <tbody>${dayRows}</tbody>
+    </table>`;
+
+  buildAndOpenSimple(data, bodyHTML);
+}
+
+function buildAndOpenSimple(data, bodyHTML) {
+  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>AdTrack — Relatório</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>*{margin:0;padding:0;box-sizing:border-box;}body{background:#f8f8fb;font-family:'Inter',sans-serif;padding:32px;color:#111;}
+  .wrap{max-width:860px;margin:0 auto;background:#fff;border-radius:12px;padding:36px;box-shadow:0 4px 24px rgba(0,0,0,0.07);}
+  @media print{body{background:#fff!important;padding:0;}.wrap{box-shadow:none;border-radius:0;}.no-print{display:none!important;}-webkit-print-color-adjust:exact;print-color-adjust:exact;}</style>
+  </head><body><div class="wrap">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;padding-bottom:18px;border-bottom:2px solid #7c6fff;">
+      <div style="font-family:'Inter',sans-serif;font-size:22px;font-weight:900;letter-spacing:2px;"><span style="color:#7c6fff;">AD</span><span style="color:#111;">TRACK</span></div>
+      <div style="text-align:right;font-size:11px;color:#888;">${data.period||periodLabel()}<br>${new Date().toLocaleDateString('pt-BR')}</div>
+    </div>
+    ${bodyHTML}
+    <div style="margin-top:32px;padding-top:14px;border-top:1px solid #eee;font-size:10px;color:#bbb;text-align:center;">Gerado por AdTrack · ${new Date().toLocaleString('pt-BR')}</div>
+    <div class="no-print" style="position:fixed;bottom:24px;right:24px;display:flex;gap:8px;">
+      <button onclick="copyReport()" id="copyBtn" style="background:#fff;color:#333;border:1px solid #ddd;padding:10px 16px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;">📋 Copiar</button>
+      <button onclick="downloadHTML()" style="background:#fff;color:#333;border:1px solid #ddd;padding:10px 16px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;">⬇ Baixar</button>
+      <button onclick="window.print()" style="background:#7c6fff;color:#fff;border:none;padding:10px 16px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;">🖨️ Salvar PDF</button>
+    </div>
+  </div>
+  <script>
+  function downloadHTML(){const b=new Blob([document.documentElement.outerHTML],{type:'text/html'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='adtrack-simples-'+Date.now()+'.html';a.click();}
+  function copyReport(){const t=document.querySelector('.wrap').innerText;navigator.clipboard.writeText(t).then(()=>{const b=document.getElementById('copyBtn');b.textContent='✓ Copiado!';setTimeout(()=>b.textContent='📋 Copiar',2000);});}
+  <\/script>
+  </div></body></html>`;
+
+  const w=window.open('','_blank');
+  w.document.write(html);
+  w.document.close();
+  showToast('PDF Simples aberto! ✓');
+}
+
 function doExportPDF(data, theme='dark') {
   if(expType==='comparativo'&&(!data.dA||!data.dB)){showToast('Selecione os dois dias.','#ff2d55');return;}
+
+  // ── SIMPLE THEME: clean list layout ──
+  if(theme==='simple') { doExportPDFSimple(data); return; }
+
   const t = PDF_THEMES[theme]||PDF_THEMES.dark;
 
   let bodyContent = '';
