@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chef Fran – Receitas Lucrativas</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: #FFF8F2;
+    min-height: 100vh;
+  }
+
+  header {
+    background: #7B2D00;
+    padding: 1.8rem 1rem;
+    text-align: center;
+  }
+  header h1 { color: #FFD166; font-size: clamp(1.5rem, 5vw, 2.2rem); font-weight: 900; }
+  header p { color: rgba(255,255,255,0.7); margin-top: 0.4rem; font-size: clamp(0.85rem, 3vw, 1rem); }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.9rem;
+    padding: 1.2rem 0.9rem;
+    max-width: 960px;
+    margin: 0 auto;
+  }
+
+  .bloco {
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+    transition: transform 0.18s, box-shadow 0.18s;
+    text-decoration: none;
+    display: block;
+    cursor: pointer;
+  }
+  .bloco:hover { transform: scale(1.03); box-shadow: 0 8px 28px rgba(0,0,0,0.16); }
+  .bloco:active { transform: scale(0.97); }
+
+  .bloco-inner {
+    padding: 1.4rem 1rem 1.2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    min-height: 140px;
+    justify-content: center;
+  }
+  .bloco-emoji { font-size: clamp(2rem, 6vw, 2.8rem); margin-bottom: 0.6rem; }
+  .bloco-titulo {
+    color: #fff;
+    font-size: clamp(0.82rem, 2.5vw, 1.1rem);
+    font-weight: 900;
+    line-height: 1.3;
+  }
+
+  .bloco-baixar-wrap {
+    background: #fff;
+    padding: 0.7rem 0.8rem;
+    display: flex;
+    justify-content: center;
+  }
+  .bloco-baixar {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    background: #fff;
+    color: #7B2D00;
+    border: 2px solid #7B2D00;
+    border-radius: 30px;
+    padding: 0.45rem 1rem;
+    font-size: clamp(0.72rem, 2.2vw, 0.88rem);
+    font-weight: 800;
+    text-decoration: none;
+    transition: background 0.15s, color 0.15s;
+    white-space: nowrap;
+  }
+  .bloco-baixar:hover { background: #7B2D00; color: #fff; }
+
+  footer {
+    text-align: center;
+    padding: 1.5rem;
+    color: #b07050;
+    font-size: 0.82rem;
+  }
+
+  /* TABLET */
+  @media (min-width: 600px) {
+    .grid { grid-template-columns: repeat(3, 1fr); gap: 1rem; padding: 1.5rem 1.2rem; }
+    .bloco-inner { min-height: 160px; }
+  }
+
+  /* DESKTOP */
+  @media (min-width: 900px) {
+    .grid { grid-template-columns: repeat(4, 1fr); gap: 1.2rem; padding: 2rem 1.5rem; }
+  }
+
+  /* CELULAR PEQUENO */
+  @media (max-width: 360px) {
+    .grid { grid-template-columns: 1fr; }
+    .bloco-inner { min-height: 120px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>👩‍🍳 Chef Fran</h1>
+  <p>Toque no bloco para ver o conteúdo</p>
+</header>
+
+<div class="grid">
+
+  <a class="bloco" href="https://drive.google.com/file/d/1ownj3FQhtT9uTq-KaW8iNE1Dy4SN1VFV/preview" target="_blank">
+    <div class="bloco-inner" style="background:#C45E35;">
+      <span class="bloco-emoji">🍝</span>
+      <span class="bloco-titulo">31 Receitas Macarrão Gourmet no Pote</span>
+    </div>
+    <div class="bloco-baixar-wrap">
+      <a class="bloco-baixar" href="https://drive.google.com/uc?export=download&id=1ownj3FQhtT9uTq-KaW8iNE1Dy4SN1VFV" target="_blank" onclick="event.stopPropagation()">⬇ Baixar PDF</a>
+    </div>
+  </a>
+
+  <a class="bloco" href="https://drive.google.com/file/d/1zqd7sugA2dKt0_KKzLs3DPmXHvb3JR8B/preview" target="_blank">
+    <div class="bloco-inner" style="background:#5A8A3C;">
+      <span class="bloco-emoji">🥗</span>
+      <span class="bloco-titulo">Macarrão Gourmet Fitness</span>
+    </div>
+    <div class="bloco-baixar-wrap">
+      <a class="bloco-baixar" href="https://drive.google.com/uc?export=download&id=1zqd7sugA2dKt0_KKzLs3DPmXHvb3JR8B" target="_blank" onclick="event.stopPropagation()">⬇ Baixar PDF</a>
+    </div>
+  </a>
+
+  <a class="bloco" href="https://drive.google.com/file/d/1znnM7gKjIUuKlrQFf1EiYyXGa6caOnix/preview" target="_blank">
+    <div class="bloco-inner" style="background:#2C6E49;">
+      <span class="bloco-emoji">📋</span>
+      <span class="bloco-titulo">Bônus – Como Abrir o MEI</span>
+    </div>
+    <div class="bloco-baixar-wrap">
+      <a class="bloco-baixar" href="https://drive.google.com/uc?export=download&id=1znnM7gKjIUuKlrQFf1EiYyXGa6caOnix" target="_blank" onclick="event.stopPropagation()">⬇ Baixar PDF</a>
+    </div>
+  </a>
+
+  <a class="bloco" href="https://drive.google.com/file/d/1rIZ2rmfeg7WdKaaivYPKgCchYl5fEtce/preview" target="_blank">
+    <div class="bloco-inner" style="background:#B5451B;">
+      <span class="bloco-emoji">🥞</span>
+      <span class="bloco-titulo">Bônus – Panquecas Gourmet</span>
+    </div>
+    <div class="bloco-baixar-wrap">
+      <a class="bloco-baixar" href="https://drive.google.com/uc?export=download&id=1rIZ2rmfeg7WdKaaivYPKgCchYl5fEtce" target="_blank" onclick="event.stopPropagation()">⬇ Baixar PDF</a>
+    </div>
+  </a>
+
+  <a class="bloco" href="https://drive.google.com/file/d/1aXCSEWlHlTecQueAPqgSbwMWSqB-vuQg/preview" target="_blank">
+    <div class="bloco-inner" style="background:#7B5EA7;">
+      <span class="bloco-emoji">📦</span>
+      <span class="bloco-titulo">Como Escolher as Embalagens Ideais</span>
+    </div>
+    <div class="bloco-baixar-wrap">
+      <a class="bloco-baixar" href="https://drive.google.com/uc?export=download&id=1aXCSEWlHlTecQueAPqgSbwMWSqB-vuQg" target="_blank" onclick="event.stopPropagation()">⬇ Baixar PDF</a>
+    </div>
+  </a>
+
+  <a class="bloco" href="https://drive.google.com/file/d/1X2Ic0vbBNsd0yap_QAzcNGtGxDkUTJVQ/preview" target="_blank">
+    <div class="bloco-inner" style="background:#D4A020;">
+      <span class="bloco-emoji">💰</span>
+      <span class="bloco-titulo">Estratégias de Venda</span>
+    </div>
+    <div class="bloco-baixar-wrap">
+      <a class="bloco-baixar" href="https://drive.google.com/uc?export=download&id=1X2Ic0vbBNsd0yap_QAzcNGtGxDkUTJVQ" target="_blank" onclick="event.stopPropagation()">⬇ Baixar PDF</a>
+    </div>
+  </a>
+
+  <a class="bloco" href="https://drive.google.com/file/d/1h3WwznOLELGyyEwKC4OtW5p0QKGtERU3/preview" target="_blank">
+    <div class="bloco-inner" style="background:#2980B9;">
+      <span class="bloco-emoji">❄️</span>
+      <span class="bloco-titulo">Congelamento Inteligente</span>
+    </div>
+    <div class="bloco-baixar-wrap">
+      <a class="bloco-baixar" href="https://drive.google.com/uc?export=download&id=1h3WwznOLELGyyEwKC4OtW5p0QKGtERU3" target="_blank" onclick="event.stopPropagation()">⬇ Baixar PDF</a>
+    </div>
+  </a>
+
+  <a class="bloco" href="https://drive.google.com/file/d/1CkqDIYPDTkNbPQ6vEG5YEnoWe0QoLK04/preview" target="_blank">
+    <div class="bloco-inner" style="background:#C4386A;">
+      <span class="bloco-emoji">🍰</span>
+      <span class="bloco-titulo">Bônus – Sobremesas Lucrativas</span>
+    </div>
+    <div class="bloco-baixar-wrap">
+      <a class="bloco-baixar" href="https://drive.google.com/uc?export=download&id=1CkqDIYPDTkNbPQ6vEG5YEnoWe0QoLK04" target="_blank" onclick="event.stopPropagation()">⬇ Baixar PDF</a>
+    </div>
+  </a>
+
+  <a class="bloco" href="https://drive.google.com/file/d/1jChWUDT38Gy6xsVDGZRwkdgP1qd-sY3Y/preview" target="_blank">
+    <div class="bloco-inner" style="background:#1A7A4A;">
+      <span class="bloco-emoji">📱</span>
+      <span class="bloco-titulo">WhatsApp Magnético</span>
+    </div>
+    <div class="bloco-baixar-wrap">
+      <a class="bloco-baixar" href="https://drive.google.com/uc?export=download&id=1jChWUDT38Gy6xsVDGZRwkdgP1qd-sY3Y" target="_blank" onclick="event.stopPropagation()">⬇ Baixar PDF</a>
+    </div>
+  </a>
+
+  <a class="bloco" href="https://drive.google.com/file/d/1GyxDV1yL6eFeFeviYD0yYN6cs1lQTDUJ/preview" target="_blank">
+    <div class="bloco-inner" style="background:#4A4A8A;">
+      <span class="bloco-emoji">📄</span>
+      <span class="bloco-titulo">Instrução Planilha de Precificação</span>
+    </div>
+    <div class="bloco-baixar-wrap">
+      <a class="bloco-baixar" href="https://drive.google.com/uc?export=download&id=1GyxDV1yL6eFeFeviYD0yYN6cs1lQTDUJ" target="_blank" onclick="event.stopPropagation()">⬇ Baixar PDF</a>
+    </div>
+  </a>
+
+  <a class="bloco" href="https://docs.google.com/spreadsheets/d/1LrZMc4SZhf-JwZbchl91fT8fp7NLO4Jn/edit?usp=drive_link" target="_blank">
+    <div class="bloco-inner" style="background:#1D6F42;">
+      <span class="bloco-emoji">📊</span>
+      <span class="bloco-titulo">Planilha de Precificação</span>
+    </div>
+    <div class="bloco-baixar-wrap">
+      <a class="bloco-baixar" href="https://docs.google.com/spreadsheets/d/1LrZMc4SZhf-JwZbchl91fT8fp7NLO4Jn/export?format=xlsx" target="_blank" onclick="event.stopPropagation()">⬇ Baixar Planilha</a>
+    </div>
+  </a>
+
+</div>
+
+<footer>Chef Fran © 2025 – Receitas Lucrativas</footer>
+
+</body>
+</html>
