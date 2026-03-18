@@ -2,234 +2,527 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Chef Fran – Receitas Lucrativas</title>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Macarrão Gourmet no Pote</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    font-family: 'Nunito', sans-serif;
-    background: #FFF8F2;
-    min-height: 100vh;
+  :root {
+    --laranja: #E8621A;
+    --laranja-claro: #F4894A;
+    --marrom: #3D1F0A;
+    --marrom-medio: #6B3A1F;
+    --creme: #FDF6EE;
+    --creme-escuro: #F5E8D8;
+    --dourado: #C8882A;
+    --texto: #2A1505;
   }
 
-  header {
-    background: #7B2D00;
-    padding: 1.8rem 1rem;
-    text-align: center;
-  }
-  header h1 { color: #FFD166; font-size: clamp(1.5rem, 5vw, 2.2rem); font-weight: 900; }
-  header p { color: rgba(255,255,255,0.7); margin-top: 0.4rem; font-size: clamp(0.85rem, 3vw, 1rem); }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.9rem;
-    padding: 1.2rem 0.9rem;
-    max-width: 960px;
-    margin: 0 auto;
+  html, body {
+    font-family:'Nunito',sans-serif;
+    background:var(--creme);
+    color:var(--texto);
+    min-height:100vh;
+    font-size:16px;
+    overflow-x:hidden;
   }
 
-  .bloco {
-    border-radius: 16px;
-    overflow: hidden;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.10);
-    transition: transform 0.18s, box-shadow 0.18s;
-    text-decoration: none;
-    display: block;
-    cursor: pointer;
+  /* ---- HEADER ---- */
+  .header {
+    background:linear-gradient(135deg, var(--marrom) 0%, var(--marrom-medio) 60%, var(--laranja) 100%);
+    padding:36px 20px 48px;
+    text-align:center;
+    position:relative;
+    overflow:hidden;
   }
-  .bloco:hover { transform: scale(1.03); box-shadow: 0 8px 28px rgba(0,0,0,0.16); }
-  .bloco:active { transform: scale(0.97); }
+  .header::before { content:''; position:absolute; top:-50px; right:-50px; width:200px; height:200px; border-radius:50%; background:rgba(232,98,26,0.15); }
+  .header::after  { content:''; position:absolute; bottom:-70px; left:-40px; width:180px; height:180px; border-radius:50%; background:rgba(200,136,42,0.12); }
+  .header-badge { display:inline-block; background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.3); color:#fff; font-size:10px; font-weight:800; letter-spacing:3px; text-transform:uppercase; padding:6px 16px; border-radius:50px; margin-bottom:14px; }
+  .header h1 { font-family:'Playfair Display',serif; font-size:clamp(26px,8vw,42px); color:#fff; line-height:1.2; margin-bottom:8px; position:relative; z-index:1; }
+  .header h1 span { color:var(--laranja-claro); }
+  .header p { color:rgba(255,255,255,0.8); font-size:14px; font-weight:600; position:relative; z-index:1; }
+  .wave { display:block; width:100%; height:36px; background:var(--creme); clip-path:ellipse(55% 100% at 50% 100%); margin-top:-1px; }
 
-  .bloco-inner {
-    padding: 1.4rem 1rem 1.2rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    min-height: 140px;
-    justify-content: center;
-  }
-  .bloco-emoji { font-size: clamp(2rem, 6vw, 2.8rem); margin-bottom: 0.6rem; }
-  .bloco-titulo {
-    color: #fff;
-    font-size: clamp(0.82rem, 2.5vw, 1.1rem);
-    font-weight: 900;
-    line-height: 1.3;
-  }
+  /* ---- WELCOME ---- */
+  .welcome { background:linear-gradient(135deg, var(--laranja), var(--dourado)); margin:0 14px 20px; border-radius:16px; padding:18px 20px; color:#fff; display:flex; align-items:center; gap:14px; box-shadow:0 6px 24px rgba(232,98,26,0.3); }
+  .welcome-icon { font-size:34px; flex-shrink:0; }
+  .welcome h2 { font-size:15px; font-weight:800; margin-bottom:3px; }
+  .welcome p { font-size:12px; opacity:0.9; line-height:1.5; }
 
-  .bloco-baixar-wrap {
-    background: #fff;
-    padding: 0.7rem 0.8rem;
-    display: flex;
-    justify-content: center;
-  }
-  .bloco-baixar {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.3rem;
-    background: #fff;
-    color: #7B2D00;
-    border: 2px solid #7B2D00;
-    border-radius: 30px;
-    padding: 0.45rem 1rem;
-    font-size: clamp(0.72rem, 2.2vw, 0.88rem);
-    font-weight: 800;
-    text-decoration: none;
-    transition: background 0.15s, color 0.15s;
-    white-space: nowrap;
-  }
-  .bloco-baixar:hover { background: #7B2D00; color: #fff; }
+  /* ---- PROGRESS ---- */
+  .progress-section { margin:0 14px 24px; background:#fff; border-radius:14px; padding:16px 18px; box-shadow:0 4px 16px rgba(61,31,10,0.08); }
+  .progress-label { display:flex; justify-content:space-between; font-size:12px; font-weight:700; color:var(--marrom-medio); margin-bottom:8px; }
+  .progress-bar { height:10px; background:var(--creme-escuro); border-radius:50px; overflow:hidden; }
+  .progress-fill { height:100%; width:0%; background:linear-gradient(90deg, var(--laranja), var(--dourado)); border-radius:50px; transition:width 0.8s ease; }
 
-  footer {
-    text-align: center;
-    padding: 1.5rem;
-    color: #b07050;
-    font-size: 0.82rem;
-  }
+  /* ---- SECTION TITLE ---- */
+  .section-title { font-family:'Playfair Display',serif; font-size:20px; color:var(--marrom); padding:0 14px; margin-bottom:12px; display:flex; align-items:center; gap:10px; }
+  .section-title::after { content:''; flex:1; height:2px; background:linear-gradient(90deg, var(--laranja), transparent); border-radius:2px; }
 
-  /* TABLET */
-  @media (min-width: 600px) {
-    .grid { grid-template-columns: repeat(3, 1fr); gap: 1rem; padding: 1.5rem 1.2rem; }
-    .bloco-inner { min-height: 160px; }
-  }
+  /* ---- CARDS ---- */
+  .modules { padding:0 14px; display:flex; flex-direction:column; gap:12px; margin-bottom:28px; }
 
-  /* DESKTOP */
-  @media (min-width: 900px) {
-    .grid { grid-template-columns: repeat(4, 1fr); gap: 1.2rem; padding: 2rem 1.5rem; }
-  }
+  .card { background:#fff; border-radius:16px; overflow:hidden; box-shadow:0 4px 16px rgba(61,31,10,0.08); cursor:pointer; }
+  .card:active { opacity:0.95; }
 
-  /* CELULAR PEQUENO */
-  @media (max-width: 360px) {
-    .grid { grid-template-columns: 1fr; }
-    .bloco-inner { min-height: 120px; }
-  }
+  .card-header { display:flex; align-items:center; gap:12px; padding:16px 18px; background:var(--creme); border-bottom:1px solid rgba(61,31,10,0.05); }
+  .card-icon { width:46px; height:46px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; }
+  .card-icon.laranja { background:linear-gradient(135deg, var(--laranja), var(--laranja-claro)); }
+  .card-icon.marrom  { background:linear-gradient(135deg, var(--marrom), var(--marrom-medio)); }
+  .card-icon.dourado { background:linear-gradient(135deg, var(--dourado), #E8A84A); }
+  .card-icon.verde   { background:linear-gradient(135deg, #3D8A4A, #5CB870); }
+
+  .card-info { flex:1; min-width:0; }
+  .card-tag { font-size:9px; font-weight:800; letter-spacing:2px; text-transform:uppercase; color:var(--laranja); margin-bottom:2px; }
+  .card-title { font-size:13px; font-weight:800; color:var(--marrom); line-height:1.3; }
+  .card-subtitle { font-size:11px; color:var(--marrom-medio); opacity:0.7; margin-top:2px; }
+  .card-arrow { font-size:20px; color:var(--laranja); transition:transform 0.3s ease; flex-shrink:0; margin-left:6px; }
+  .card.open .card-arrow { transform:rotate(90deg); }
+
+  .card-body { display:none; padding:16px; flex-direction:column; gap:12px; }
+  .card.open .card-body { display:flex; animation:slideDown 0.3s ease; }
+  @keyframes slideDown { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
+
+  /* ---- VIDEO ---- */
+  .video-wrapper { background:var(--marrom); border-radius:12px; overflow:hidden; aspect-ratio:16/9; display:flex; align-items:center; justify-content:center; width:100%; }
+  .video-placeholder { text-align:center; color:rgba(255,255,255,0.7); padding:16px; }
+  .play-btn { width:58px; height:58px; background:var(--laranja); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 10px; font-size:22px; box-shadow:0 6px 18px rgba(232,98,26,0.4); }
+  .video-placeholder p { font-size:13px; font-weight:700; }
+  .video-placeholder small { font-size:11px; opacity:0.6; display:block; margin-top:3px; }
+  .video-embed { width:100%; height:100%; border:none; }
+
+  /* ---- PDF BTN ---- */
+  .pdf-btn { display:flex; align-items:center; gap:12px; background:linear-gradient(135deg, var(--marrom), var(--marrom-medio)); color:#fff; padding:14px 16px; border-radius:12px; text-decoration:none; font-weight:700; font-size:13px; box-shadow:0 4px 12px rgba(61,31,10,0.22); -webkit-tap-highlight-color:transparent; }
+  .pdf-btn:active { opacity:0.9; }
+  .pdf-btn .pdf-icon { width:38px; height:38px; background:rgba(255,255,255,0.15); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+  .pdf-btn .pdf-text { flex:1; min-width:0; }
+  .pdf-btn .pdf-text small { display:block; font-size:10px; font-weight:600; opacity:0.7; margin-bottom:1px; }
+  .pdf-btn .pdf-arrow { margin-left:auto; font-size:16px; opacity:0.7; flex-shrink:0; }
+
+  /* ---- EXTRA BTN (planilha) ---- */
+  .extra-btn { display:flex; align-items:center; gap:12px; background:linear-gradient(135deg, #3D8A4A, #5CB870); color:#fff; padding:14px 16px; border-radius:12px; text-decoration:none; font-weight:700; font-size:13px; box-shadow:0 4px 12px rgba(61,138,74,0.22); -webkit-tap-highlight-color:transparent; }
+  .extra-btn:active { opacity:0.9; }
+  .extra-btn .pdf-icon { width:38px; height:38px; background:rgba(255,255,255,0.2); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+  .extra-btn .pdf-text { flex:1; min-width:0; }
+  .extra-btn .pdf-text small { display:block; font-size:10px; font-weight:600; opacity:0.8; margin-bottom:1px; }
+  .extra-btn .pdf-arrow { margin-left:auto; font-size:16px; opacity:0.7; flex-shrink:0; }
+
+  /* ---- INSTRUÇÃO PDF ---- */
+  .pdf-instrucao { background:rgba(232,98,26,0.07); border:1px solid rgba(232,98,26,0.18); border-radius:10px; padding:10px 14px; color:var(--marrom-medio); font-size:12px; font-weight:700; text-align:center; line-height:1.5; }
+
+  /* ---- BONUS BADGE ---- */
+  .bonus-badge { display:inline-flex; align-items:center; gap:5px; background:linear-gradient(135deg, var(--dourado), #E8A84A); color:#fff; font-size:9px; font-weight:800; letter-spacing:1.5px; text-transform:uppercase; padding:3px 10px; border-radius:50px; margin-bottom:4px; }
+
+  /* ---- PIX ---- */
+  .pix-section { margin:0 14px 28px; }
+
+  .pix-card { background:linear-gradient(145deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); border-radius:22px; overflow:hidden; box-shadow:0 10px 36px rgba(0,0,0,0.22); position:relative; }
+  .pix-card::before { content:''; position:absolute; top:-60px; right:-60px; width:180px; height:180px; border-radius:50%; background:rgba(255,255,255,0.04); }
+  .pix-card::after  { content:''; position:absolute; bottom:-40px; left:-40px; width:140px; height:140px; border-radius:50%; background:rgba(255,255,255,0.03); }
+
+  .pix-header { padding:26px 20px 18px; text-align:center; position:relative; z-index:1; }
+  .pix-icon-wrap { width:64px; height:64px; background:linear-gradient(135deg, #32BCAD, #1a9e8f); border-radius:18px; display:flex; align-items:center; justify-content:center; font-size:30px; margin:0 auto 14px; box-shadow:0 8px 22px rgba(50,188,173,0.4); }
+  .pix-header h2 { font-family:'Playfair Display',serif; font-size:20px; color:#fff; margin-bottom:6px; }
+  .pix-header p { color:rgba(255,255,255,0.6); font-size:13px; line-height:1.5; }
+
+  /* Tabela de valores — só visual, sem clique */
+  .pix-valores { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:0 18px 18px; position:relative; z-index:1; }
+  .valor-item { background:rgba(255,255,255,0.08); border:2px solid rgba(255,255,255,0.12); border-radius:14px; padding:14px 10px; text-align:center; color:#fff; }
+  .valor-item .cifrao { font-size:11px; opacity:0.65; font-weight:700; }
+  .valor-item .preco { font-size:24px; font-weight:800; color:#fff; line-height:1; }
+  .valor-item .centavos { font-size:13px; opacity:0.8; font-weight:700; }
+
+  .pix-divider { height:1px; background:rgba(255,255,255,0.08); margin:0 18px 18px; }
+
+  .pix-info { padding:0 18px 22px; position:relative; z-index:1; }
+  .pix-info-label { font-size:10px; font-weight:800; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,0.4); margin-bottom:8px; }
+
+  .pix-key-row { display:flex; align-items:center; gap:10px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:14px 16px; margin-bottom:10px; }
+  .pix-key-icon { font-size:20px; }
+  .pix-key-text { flex:1; }
+  .pix-key-text small { display:block; font-size:10px; color:rgba(255,255,255,0.4); font-weight:700; margin-bottom:2px; text-transform:uppercase; letter-spacing:1px; }
+  .pix-key-text span { font-size:15px; font-weight:800; color:#fff; letter-spacing:1px; }
+
+  .pix-owner { display:flex; gap:10px; margin-bottom:16px; }
+  .pix-owner-item { flex:1; background:rgba(255,255,255,0.05); border-radius:10px; padding:10px 12px; }
+  .pix-owner-item small { display:block; font-size:9px; color:rgba(255,255,255,0.4); font-weight:700; text-transform:uppercase; letter-spacing:1px; margin-bottom:3px; }
+  .pix-owner-item span { font-size:12px; font-weight:700; color:rgba(255,255,255,0.85); }
+
+  /* Instrução PIX */
+  .pix-instrucao-box { background:rgba(50,188,173,0.1); border:1px solid rgba(50,188,173,0.22); border-radius:10px; padding:11px 14px; color:rgba(255,255,255,0.8); font-size:12px; font-weight:700; text-align:center; line-height:1.5; margin-bottom:12px; }
+
+  .copy-btn { width:100%; background:linear-gradient(135deg, #32BCAD, #1a9e8f); color:#fff; border:none; border-radius:12px; padding:17px; font-family:'Nunito',sans-serif; font-size:15px; font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px; box-shadow:0 6px 18px rgba(50,188,173,0.35); -webkit-tap-highlight-color:transparent; }
+  .copy-btn:active { opacity:0.9; transform:scale(0.98); }
+  .copy-btn.copied { background:linear-gradient(135deg, #4CAF50, #388E3C); }
+
+  /* ---- TOAST ---- */
+  .toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(100px); background:#4CAF50; color:#fff; padding:13px 26px; border-radius:50px; font-weight:800; font-size:14px; box-shadow:0 8px 28px rgba(0,0,0,0.2); transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1); z-index:9999; white-space:nowrap; }
+  .toast.show { transform:translateX(-50%) translateY(0); }
+
+  /* ---- FOOTER ---- */
+  .footer { background:var(--marrom); color:rgba(255,255,255,0.6); text-align:center; padding:26px 20px; font-size:13px; }
+  .footer strong { color:var(--laranja-claro); font-size:15px; display:block; margin-bottom:6px; font-family:'Playfair Display',serif; }
 </style>
 </head>
 <body>
 
-<header>
-  <h1>👩‍🍳 Chef Fran</h1>
-  <p>Toque no bloco para ver o conteúdo</p>
-</header>
+<!-- HEADER -->
+<div class="header">
+  <div class="header-badge">✨ Área de Membros</div>
+  <h1>Macarrão<br><span>Gourmet no Pote</span></h1>
+  <p>Todo o seu conteúdo num só lugar 🍝</p>
+</div>
+<div class="wave"></div>
 
-<div class="grid">
+<!-- WELCOME -->
+<div class="welcome">
+  <div class="welcome-icon">👋</div>
+  <div>
+    <h2>Bem-vinda ao curso!</h2>
+    <p>Aqui você encontra todos os seus materiais — vídeos e PDFs juntos, fácil de achar e usar.</p>
+  </div>
+</div>
 
-  <a class="bloco" href="https://drive.google.com/file/d/1ownj3FQhtT9uTq-KaW8iNE1Dy4SN1VFV/preview" target="_blank">
-    <div class="bloco-inner" style="background:#C45E35;">
-      <span class="bloco-emoji">🍝</span>
-      <span class="bloco-titulo">31 Receitas Macarrão Gourmet no Pote</span>
-    </div>
-    <div class="bloco-baixar-wrap">
-      <a class="bloco-baixar" href="https://drive.google.com/uc?export=download&id=1ownj3FQhtT9uTq-KaW8iNE1Dy4SN1VFV" target="_blank" onclick="event.stopPropagation()">⬇ Baixar PDF</a>
-    </div>
-  </a>
+<!-- PROGRESS -->
+<div class="progress-section">
+  <div class="progress-label">
+    <span>📊 Seu progresso</span>
+    <span id="progress-text">0 de 11 acessados</span>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+</div>
 
-  <a class="bloco" href="https://drive.google.com/file/d/1zqd7sugA2dKt0_KKzLs3DPmXHvb3JR8B/preview" target="_blank">
-    <div class="bloco-inner" style="background:#5A8A3C;">
-      <span class="bloco-emoji">🥗</span>
-      <span class="bloco-titulo">Macarrão Gourmet Fitness</span>
-    </div>
-    <div class="bloco-baixar-wrap">
-      <a class="bloco-baixar" href="https://drive.google.com/uc?export=download&id=1zqd7sugA2dKt0_KKzLs3DPmXHvb3JR8B" target="_blank" onclick="event.stopPropagation()">⬇ Baixar PDF</a>
-    </div>
-  </a>
+<!-- ===== CONTEÚDO PRINCIPAL ===== -->
+<div class="section-title">🍝 Conteúdo Principal</div>
+<div class="modules">
 
-  <a class="bloco" href="https://drive.google.com/file/d/1znnM7gKjIUuKlrQFf1EiYyXGa6caOnix/preview" target="_blank">
-    <div class="bloco-inner" style="background:#2C6E49;">
-      <span class="bloco-emoji">📋</span>
-      <span class="bloco-titulo">Bônus – Como Abrir o MEI</span>
+  <!-- MÓDULO 1 -->
+  <div class="card" onclick="toggleCard(this)">
+    <div class="card-header">
+      <div class="card-icon laranja">🍝</div>
+      <div class="card-info">
+        <div class="card-tag">Módulo 1</div>
+        <div class="card-title">31 Receitas de Macarrão Gourmet no Pote</div>
+        <div class="card-subtitle">Vídeo + PDF</div>
+      </div>
+      <div class="card-arrow">›</div>
     </div>
-    <div class="bloco-baixar-wrap">
-      <a class="bloco-baixar" href="https://drive.google.com/uc?export=download&id=1znnM7gKjIUuKlrQFf1EiYyXGa6caOnix" target="_blank" onclick="event.stopPropagation()">⬇ Baixar PDF</a>
+    <div class="card-body">
+      <div class="video-wrapper"><div class="video-placeholder"><div class="play-btn">▶</div><p>Aula em vídeo</p><small>Em breve</small></div></div>
+      <a href="https://drive.google.com/file/d/1ownj3FQhtT9uTq-KaW8iNE1Dy4SN1VFV/view?usp=drive_link" target="_blank" class="pdf-btn">
+        <div class="pdf-icon">📄</div><div class="pdf-text"><small>Baixar material</small>31 Receitas Macarrão Gourmet no Pote</div><div class="pdf-arrow">↓</div>
+      </a>
+      <div class="pdf-instrucao">👆 Toque no botão acima para abrir o PDF — é só clicar que já abre!</div>
     </div>
-  </a>
+  </div>
 
-  <a class="bloco" href="https://drive.google.com/file/d/1rIZ2rmfeg7WdKaaivYPKgCchYl5fEtce/preview" target="_blank">
-    <div class="bloco-inner" style="background:#B5451B;">
-      <span class="bloco-emoji">🥞</span>
-      <span class="bloco-titulo">Bônus – Panquecas Gourmet</span>
+  <!-- MÓDULO 2 -->
+  <div class="card" onclick="toggleCard(this)">
+    <div class="card-header">
+      <div class="card-icon laranja">🥗</div>
+      <div class="card-info">
+        <div class="card-tag">Módulo 2</div>
+        <div class="card-title">Macarrão Gourmet Fitness</div>
+        <div class="card-subtitle">Vídeo + PDF</div>
+      </div>
+      <div class="card-arrow">›</div>
     </div>
-    <div class="bloco-baixar-wrap">
-      <a class="bloco-baixar" href="https://drive.google.com/uc?export=download&id=1rIZ2rmfeg7WdKaaivYPKgCchYl5fEtce" target="_blank" onclick="event.stopPropagation()">⬇ Baixar PDF</a>
+    <div class="card-body">
+      <div class="video-wrapper"><div class="video-placeholder"><div class="play-btn">▶</div><p>Aula em vídeo</p><small>Em breve</small></div></div>
+      <a href="https://drive.google.com/file/d/1znnM7gKjIUuKlrQFf1EiYyXGa6caOnix/view?usp=drive_link" target="_blank" class="pdf-btn">
+        <div class="pdf-icon">📄</div><div class="pdf-text"><small>Baixar material</small>Macarrão Gourmet Fitness</div><div class="pdf-arrow">↓</div>
+      </a>
+      <div class="pdf-instrucao">👆 Toque no botão acima para abrir o PDF — é só clicar que já abre!</div>
     </div>
-  </a>
+  </div>
 
-  <a class="bloco" href="https://drive.google.com/file/d/1aXCSEWlHlTecQueAPqgSbwMWSqB-vuQg/preview" target="_blank">
-    <div class="bloco-inner" style="background:#7B5EA7;">
-      <span class="bloco-emoji">📦</span>
-      <span class="bloco-titulo">Como Escolher as Embalagens Ideais</span>
+  <!-- MÓDULO 3 -->
+  <div class="card" onclick="toggleCard(this)">
+    <div class="card-header">
+      <div class="card-icon marrom">📦</div>
+      <div class="card-info">
+        <div class="card-tag">Módulo 3</div>
+        <div class="card-title">Como Escolher as Embalagens Ideais</div>
+        <div class="card-subtitle">Vídeo + PDF</div>
+      </div>
+      <div class="card-arrow">›</div>
     </div>
-    <div class="bloco-baixar-wrap">
-      <a class="bloco-baixar" href="https://drive.google.com/uc?export=download&id=1aXCSEWlHlTecQueAPqgSbwMWSqB-vuQg" target="_blank" onclick="event.stopPropagation()">⬇ Baixar PDF</a>
+    <div class="card-body">
+      <div class="video-wrapper"><div class="video-placeholder"><div class="play-btn">▶</div><p>Aula em vídeo</p><small>Em breve</small></div></div>
+      <a href="https://drive.google.com/file/d/1X2Ic0vbBNsd0yap_QAzcNGtGxDkUTJVQ/view?usp=drive_link" target="_blank" class="pdf-btn">
+        <div class="pdf-icon">📄</div><div class="pdf-text"><small>Baixar material</small>Como Escolher as Embalagens Ideais</div><div class="pdf-arrow">↓</div>
+      </a>
+      <div class="pdf-instrucao">👆 Toque no botão acima para abrir o PDF — é só clicar que já abre!</div>
     </div>
-  </a>
+  </div>
 
-  <a class="bloco" href="https://drive.google.com/file/d/1X2Ic0vbBNsd0yap_QAzcNGtGxDkUTJVQ/preview" target="_blank">
-    <div class="bloco-inner" style="background:#D4A020;">
-      <span class="bloco-emoji">💰</span>
-      <span class="bloco-titulo">Estratégias de Venda</span>
+  <!-- MÓDULO 4 -->
+  <div class="card" onclick="toggleCard(this)">
+    <div class="card-header">
+      <div class="card-icon marrom">❄️</div>
+      <div class="card-info">
+        <div class="card-tag">Módulo 4</div>
+        <div class="card-title">Congelamento Inteligente</div>
+        <div class="card-subtitle">Vídeo + PDF</div>
+      </div>
+      <div class="card-arrow">›</div>
     </div>
-    <div class="bloco-baixar-wrap">
-      <a class="bloco-baixar" href="https://drive.google.com/uc?export=download&id=1X2Ic0vbBNsd0yap_QAzcNGtGxDkUTJVQ" target="_blank" onclick="event.stopPropagation()">⬇ Baixar PDF</a>
+    <div class="card-body">
+      <div class="video-wrapper"><div class="video-placeholder"><div class="play-btn">▶</div><p>Aula em vídeo</p><small>Em breve</small></div></div>
+      <a href="https://drive.google.com/file/d/1CkqDIYPDTkNbPQ6vEG5YEnoWe0QoLK04/view?usp=drive_link" target="_blank" class="pdf-btn">
+        <div class="pdf-icon">📄</div><div class="pdf-text"><small>Baixar material</small>Congelamento Inteligente</div><div class="pdf-arrow">↓</div>
+      </a>
+      <div class="pdf-instrucao">👆 Toque no botão acima para abrir o PDF — é só clicar que já abre!</div>
     </div>
-  </a>
+  </div>
 
-  <a class="bloco" href="https://drive.google.com/file/d/1h3WwznOLELGyyEwKC4OtW5p0QKGtERU3/preview" target="_blank">
-    <div class="bloco-inner" style="background:#2980B9;">
-      <span class="bloco-emoji">❄️</span>
-      <span class="bloco-titulo">Congelamento Inteligente</span>
+  <!-- MÓDULO 5 -->
+  <div class="card" onclick="toggleCard(this)">
+    <div class="card-header">
+      <div class="card-icon dourado">📈</div>
+      <div class="card-info">
+        <div class="card-tag">Módulo 5</div>
+        <div class="card-title">Estratégias de Venda</div>
+        <div class="card-subtitle">Vídeo + PDF</div>
+      </div>
+      <div class="card-arrow">›</div>
     </div>
-    <div class="bloco-baixar-wrap">
-      <a class="bloco-baixar" href="https://drive.google.com/uc?export=download&id=1h3WwznOLELGyyEwKC4OtW5p0QKGtERU3" target="_blank" onclick="event.stopPropagation()">⬇ Baixar PDF</a>
+    <div class="card-body">
+      <div class="video-wrapper"><div class="video-placeholder"><div class="play-btn">▶</div><p>Aula em vídeo</p><small>Em breve</small></div></div>
+      <a href="https://drive.google.com/file/d/1h3WwznOLELGyyEwKC4OtW5p0QKGtERU3/view?usp=drive_link" target="_blank" class="pdf-btn">
+        <div class="pdf-icon">📄</div><div class="pdf-text"><small>Baixar material</small>Estratégias de Venda</div><div class="pdf-arrow">↓</div>
+      </a>
+      <div class="pdf-instrucao">👆 Toque no botão acima para abrir o PDF — é só clicar que já abre!</div>
     </div>
-  </a>
+  </div>
 
-  <a class="bloco" href="https://drive.google.com/file/d/1CkqDIYPDTkNbPQ6vEG5YEnoWe0QoLK04/preview" target="_blank">
-    <div class="bloco-inner" style="background:#C4386A;">
-      <span class="bloco-emoji">🍰</span>
-      <span class="bloco-titulo">Bônus – Sobremesas Lucrativas</span>
+  <!-- MÓDULO 6 -->
+  <div class="card" onclick="toggleCard(this)">
+    <div class="card-header">
+      <div class="card-icon dourado">💬</div>
+      <div class="card-info">
+        <div class="card-tag">Módulo 6</div>
+        <div class="card-title">WhatsApp Magnético</div>
+        <div class="card-subtitle">Vídeo + PDF</div>
+      </div>
+      <div class="card-arrow">›</div>
     </div>
-    <div class="bloco-baixar-wrap">
-      <a class="bloco-baixar" href="https://drive.google.com/uc?export=download&id=1CkqDIYPDTkNbPQ6vEG5YEnoWe0QoLK04" target="_blank" onclick="event.stopPropagation()">⬇ Baixar PDF</a>
+    <div class="card-body">
+      <div class="video-wrapper"><div class="video-placeholder"><div class="play-btn">▶</div><p>Aula em vídeo</p><small>Em breve</small></div></div>
+      <a href="https://drive.google.com/file/d/1jChWUDT38Gy6xsVDGZRwkdgP1qd-sY3Y/view?usp=drive_link" target="_blank" class="pdf-btn">
+        <div class="pdf-icon">📄</div><div class="pdf-text"><small>Baixar material</small>WhatsApp Magnético</div><div class="pdf-arrow">↓</div>
+      </a>
+      <div class="pdf-instrucao">👆 Toque no botão acima para abrir o PDF — é só clicar que já abre!</div>
     </div>
-  </a>
+  </div>
 
-  <a class="bloco" href="https://drive.google.com/file/d/1jChWUDT38Gy6xsVDGZRwkdgP1qd-sY3Y/preview" target="_blank">
-    <div class="bloco-inner" style="background:#1A7A4A;">
-      <span class="bloco-emoji">📱</span>
-      <span class="bloco-titulo">WhatsApp Magnético</span>
+  <!-- MÓDULO 7 -->
+  <div class="card" onclick="toggleCard(this)">
+    <div class="card-header">
+      <div class="card-icon verde">💰</div>
+      <div class="card-info">
+        <div class="card-tag">Módulo 7</div>
+        <div class="card-title">Planilha de Precificação</div>
+        <div class="card-subtitle">Vídeo + Instrução PDF + Planilha</div>
+      </div>
+      <div class="card-arrow">›</div>
     </div>
-    <div class="bloco-baixar-wrap">
-      <a class="bloco-baixar" href="https://drive.google.com/uc?export=download&id=1jChWUDT38Gy6xsVDGZRwkdgP1qd-sY3Y" target="_blank" onclick="event.stopPropagation()">⬇ Baixar PDF</a>
+    <div class="card-body">
+      <div class="video-wrapper"><div class="video-placeholder"><div class="play-btn">▶</div><p>Aula em vídeo</p><small>Em breve</small></div></div>
+      <a href="https://drive.google.com/file/d/1zqd7sugA2dKt0_KKzLs3DPmXHvb3JR8B/view?usp=drive_link" target="_blank" class="pdf-btn">
+        <div class="pdf-icon">📄</div><div class="pdf-text"><small>Instrução de uso</small>Como Usar a Planilha de Precificação</div><div class="pdf-arrow">↓</div>
+      </a>
+      <a href="https://docs.google.com/spreadsheets/d/1LrZMc4SZhf-JwZbchl91fT8fp7NLO4Jn/edit?usp=drive_link&ouid=100166452225046857978&rtpof=true&sd=true" target="_blank" class="extra-btn">
+        <div class="pdf-icon">📊</div><div class="pdf-text"><small>Baixar planilha</small>Planilha de Precificação (.xlsx)</div><div class="pdf-arrow">↓</div>
+      </a>
+      <div class="pdf-instrucao">👆 Toque nos botões acima — o 1º abre a instrução e o 2º baixa a planilha!</div>
     </div>
-  </a>
-
-  <a class="bloco" href="https://drive.google.com/file/d/1GyxDV1yL6eFeFeviYD0yYN6cs1lQTDUJ/preview" target="_blank">
-    <div class="bloco-inner" style="background:#4A4A8A;">
-      <span class="bloco-emoji">📄</span>
-      <span class="bloco-titulo">Instrução Planilha de Precificação</span>
-    </div>
-    <div class="bloco-baixar-wrap">
-      <a class="bloco-baixar" href="https://drive.google.com/uc?export=download&id=1GyxDV1yL6eFeFeviYD0yYN6cs1lQTDUJ" target="_blank" onclick="event.stopPropagation()">⬇ Baixar PDF</a>
-    </div>
-  </a>
-
-  <a class="bloco" href="https://docs.google.com/spreadsheets/d/1LrZMc4SZhf-JwZbchl91fT8fp7NLO4Jn/edit?usp=drive_link" target="_blank">
-    <div class="bloco-inner" style="background:#1D6F42;">
-      <span class="bloco-emoji">📊</span>
-      <span class="bloco-titulo">Planilha de Precificação</span>
-    </div>
-    <div class="bloco-baixar-wrap">
-      <a class="bloco-baixar" href="https://docs.google.com/spreadsheets/d/1LrZMc4SZhf-JwZbchl91fT8fp7NLO4Jn/export?format=xlsx" target="_blank" onclick="event.stopPropagation()">⬇ Baixar Planilha</a>
-    </div>
-  </a>
+  </div>
 
 </div>
 
-<footer>Chef Fran © 2025 – Receitas Lucrativas</footer>
+<!-- ===== BÔNUS ===== -->
+<div class="section-title">🎁 Seus Bônus</div>
+<div class="modules">
 
+  <!-- BÔNUS 1 -->
+  <div class="card" onclick="toggleCard(this)">
+    <div class="card-header">
+      <div class="card-icon dourado">🍰</div>
+      <div class="card-info">
+        <div class="bonus-badge">🎁 Bônus</div>
+        <div class="card-title">Sobremesas Lucrativas</div>
+        <div class="card-subtitle">Vídeo + PDF</div>
+      </div>
+      <div class="card-arrow">›</div>
+    </div>
+    <div class="card-body">
+      <div class="video-wrapper"><div class="video-placeholder"><div class="play-btn">▶</div><p>Aula em vídeo</p><small>Em breve</small></div></div>
+      <a href="https://drive.google.com/file/d/1GyxDV1yL6eFeFeviYD0yYN6cs1lQTDUJ/view?usp=drive_link" target="_blank" class="pdf-btn">
+        <div class="pdf-icon">📄</div><div class="pdf-text"><small>Baixar material</small>Bônus – Sobremesas Lucrativas</div><div class="pdf-arrow">↓</div>
+      </a>
+      <div class="pdf-instrucao">👆 Toque no botão acima para abrir o PDF — é só clicar que já abre!</div>
+    </div>
+  </div>
+
+  <!-- BÔNUS 2 -->
+  <div class="card" onclick="toggleCard(this)">
+    <div class="card-header">
+      <div class="card-icon dourado">🥞</div>
+      <div class="card-info">
+        <div class="bonus-badge">🎁 Bônus</div>
+        <div class="card-title">Panquecas Gourmet</div>
+        <div class="card-subtitle">Vídeo + PDF</div>
+      </div>
+      <div class="card-arrow">›</div>
+    </div>
+    <div class="card-body">
+      <div class="video-wrapper"><div class="video-placeholder"><div class="play-btn">▶</div><p>Aula em vídeo</p><small>Em breve</small></div></div>
+      <a href="https://drive.google.com/file/d/1aXCSEWlHlTecQueAPqgSbwMWSqB-vuQg/view?usp=drive_link" target="_blank" class="pdf-btn">
+        <div class="pdf-icon">📄</div><div class="pdf-text"><small>Baixar material</small>Bônus – Panquecas Gourmet</div><div class="pdf-arrow">↓</div>
+      </a>
+      <div class="pdf-instrucao">👆 Toque no botão acima para abrir o PDF — é só clicar que já abre!</div>
+    </div>
+  </div>
+
+  <!-- BÔNUS 3 -->
+  <div class="card" onclick="toggleCard(this)">
+    <div class="card-header">
+      <div class="card-icon dourado">📋</div>
+      <div class="card-info">
+        <div class="bonus-badge">🎁 Bônus</div>
+        <div class="card-title">Como Abrir o MEI</div>
+        <div class="card-subtitle">Vídeo + PDF</div>
+      </div>
+      <div class="card-arrow">›</div>
+    </div>
+    <div class="card-body">
+      <div class="video-wrapper"><div class="video-placeholder"><div class="play-btn">▶</div><p>Aula em vídeo</p><small>Em breve</small></div></div>
+      <a href="https://drive.google.com/file/d/1rIZ2rmfeg7WdKaaivYPKgCchYl5fEtce/view?usp=drive_link" target="_blank" class="pdf-btn">
+        <div class="pdf-icon">📄</div><div class="pdf-text"><small>Baixar material</small>Bônus – Como Abrir o MEI</div><div class="pdf-arrow">↓</div>
+      </a>
+      <div class="pdf-instrucao">👆 Toque no botão acima para abrir o PDF — é só clicar que já abre!</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ===== PIX ===== -->
+<div class="section-title">💚 Faça sua Contribuição</div>
+<div class="pix-section">
+  <div class="pix-card">
+
+    <div class="pix-header">
+      <div class="pix-icon-wrap">💚</div>
+      <h2>Gostou do conteúdo?</h2>
+      <p>Se esse material te ajudou, considere fazer uma contribuição voluntária. Qualquer valor é muito bem-vindo! 🙏</p>
+    </div>
+
+    <!-- Tabela de valores — só visual -->
+    <div class="pix-valores">
+      <div class="valor-item"><div class="cifrao">R$</div><div class="preco">19</div><div class="centavos">,90</div></div>
+      <div class="valor-item"><div class="cifrao">R$</div><div class="preco">24</div><div class="centavos">,90</div></div>
+      <div class="valor-item"><div class="cifrao">R$</div><div class="preco">29</div><div class="centavos">,90</div></div>
+      <div class="valor-item"><div class="cifrao">R$</div><div class="preco">39</div><div class="centavos">,90</div></div>
+    </div>
+
+    <div class="pix-divider"></div>
+
+    <div class="pix-info">
+      <div class="pix-info-label">Chave PIX</div>
+      <div class="pix-key-row">
+        <div class="pix-key-icon">📱</div>
+        <div class="pix-key-text">
+          <small>Celular</small>
+          <span>(24) 98118-1174</span>
+        </div>
+      </div>
+      <div class="pix-owner">
+        <div class="pix-owner-item"><small>Nome</small><span>Gustavo Raimundo</span></div>
+        <div class="pix-owner-item"><small>Banco</small><span>InfinitePay</span></div>
+      </div>
+
+      <div class="pix-instrucao-box">
+        👇 Clique no botão abaixo para copiar a chave PIX automaticamente e cole no seu app do banco!
+      </div>
+
+      <button class="copy-btn" id="copy-btn" onclick="copiarPix()">
+        <span id="copy-icon">📋</span>
+        <span id="copy-text">Copiar Chave PIX</span>
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <strong>🍝 Macarrão Gourmet no Pote</strong>
+  Feito com carinho para o seu sucesso 💛
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">✅ Chave PIX copiada!</div>
+
+<script>
+  function toggleCard(card) {
+    const wasOpen = card.classList.contains('open');
+    document.querySelectorAll('.card').forEach(c => c.classList.remove('open'));
+    if (!wasOpen) card.classList.add('open');
+    // Scroll suave para o card aberto
+    if (!wasOpen) setTimeout(() => card.scrollIntoView({ behavior:'smooth', block:'nearest' }), 50);
+    updateProgress();
+  }
+
+  function updateProgress() {
+    const total = document.querySelectorAll('.card').length;
+    const openCard = document.querySelector('.card.open');
+    if (openCard) {
+      const index = Array.from(document.querySelectorAll('.card')).indexOf(openCard);
+      localStorage.setItem('card_' + index, '1');
+    }
+    const visited = Object.keys(localStorage).filter(k => k.startsWith('card_')).length;
+    document.getElementById('progress-text').textContent = visited + ' de ' + total + ' acessados';
+    document.getElementById('progress-fill').style.width = (visited / total * 100) + '%';
+  }
+  updateProgress();
+
+  function copiarPix() {
+    const chave = '24981181174';
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(chave).then(showCopied).catch(() => fallbackCopy(chave));
+    } else {
+      fallbackCopy(chave);
+    }
+  }
+
+  function fallbackCopy(chave) {
+    const el = document.createElement('textarea');
+    el.value = chave;
+    el.style.position = 'fixed';
+    el.style.opacity = '0';
+    document.body.appendChild(el);
+    el.focus(); el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
+    showCopied();
+  }
+
+  function showCopied() {
+    const btn = document.getElementById('copy-btn');
+    document.getElementById('copy-icon').textContent = '✅';
+    document.getElementById('copy-text').textContent = 'Chave copiada!';
+    btn.classList.add('copied');
+    const toast = document.getElementById('toast');
+    toast.classList.add('show');
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      document.getElementById('copy-icon').textContent = '📋';
+      document.getElementById('copy-text').textContent = 'Copiar Chave PIX';
+      toast.classList.remove('show');
+    }, 3000);
+  }
+</script>
 </body>
 </html>
